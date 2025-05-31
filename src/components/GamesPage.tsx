@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,9 +25,9 @@ const GamesPage = () => {
 
   if (activeGame) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex flex-col">
+      <div className="fixed inset-0 z-50 bg-black flex flex-col">
         {/* Game Header */}
-        <div className="flex justify-between items-center p-4 bg-black/20 backdrop-blur-lg">
+        <div className="flex justify-between items-center p-4 bg-black/80 backdrop-blur-lg">
           <div className="flex items-center gap-3">
             <Gamepad2 className="w-6 h-6 text-pink-400" />
             <h1 className="text-xl font-bold text-white">Slow Roads</h1>
@@ -44,18 +43,18 @@ const GamesPage = () => {
         </div>
 
         {/* Rotation Notice */}
-        <div className="bg-yellow-500/20 border border-yellow-500/30 p-4 mx-4 mt-4 rounded-xl">
+        <div className="bg-yellow-500/20 border border-yellow-500/30 p-2 mx-4 rounded-xl">
           <div className="flex items-center gap-3 justify-center">
             <RotateCcw className="w-5 h-5 text-yellow-400" />
-            <p className="text-white text-center font-medium">
+            <p className="text-white text-center font-medium text-sm">
               {t('rotatePhoneToPlay')}
             </p>
           </div>
         </div>
 
-        {/* Game Frame */}
+        {/* Game Frame - Full Screen */}
         <div className="flex-1 p-4">
-          <div className="h-full bg-black rounded-xl overflow-hidden">
+          <div className="h-full w-full bg-black rounded-xl overflow-hidden">
             <iframe
               src={activeGame}
               className="w-full h-full border-0"
