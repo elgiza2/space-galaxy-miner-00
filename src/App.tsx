@@ -23,6 +23,7 @@ type Page = 'mining' | 'tasks' | 'wallet' | 'referral' | 'games';
 const App = () => {
   const [appState, setAppState] = useState<AppState>('splash');
   const [currentPage, setCurrentPage] = useState<Page>('mining');
+  const [isGameFullscreen, setIsGameFullscreen] = useState(false);
 
   const handleSplashComplete = () => {
     const onboardingCompleted = localStorage.getItem('space-onboarding-completed');
@@ -53,7 +54,7 @@ const App = () => {
       case 'referral':
         return <ReferralPage />;
       case 'games':
-        return <GamesPage />;
+        return <GamesPage onGameStateChange={setIsGameFullscreen} />;
       default:
         return <MiningPage />;
     }
@@ -77,35 +78,37 @@ const App = () => {
           {appState === 'main' && (
             <div className="min-h-screen flex flex-col">
               {/* Main Content */}
-              <div className="flex-1 pb-20">
+              <div className={isGameFullscreen ? "flex-1" : "flex-1 pb-20"}>
                 {renderCurrentPage()}
               </div>
 
-              {/* Bottom Navigation */}
-              <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/20 p-4 z-50">
-                <div className="max-w-md mx-auto">
-                  <div className="grid grid-cols-5 gap-2">
-                    {navigationItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Button
-                          key={item.id}
-                          variant="ghost"
-                          onClick={() => setCurrentPage(item.id as Page)}
-                          className={`flex flex-col items-center gap-1 h-auto py-2 px-2 text-xs ${
-                            currentPage === item.id
-                              ? 'text-pink-400 bg-pink-400/20'
-                              : 'text-gray-400 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          <Icon className="w-6 h-6" />
-                          <span>{item.label}</span>
-                        </Button>
-                      );
-                    })}
+              {/* Bottom Navigation - Hidden when game is fullscreen */}
+              {!isGameFullscreen && (
+                <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/20 p-4 z-50">
+                  <div className="max-w-md mx-auto">
+                    <div className="grid grid-cols-5 gap-2">
+                      {navigationItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Button
+                            key={item.id}
+                            variant="ghost"
+                            onClick={() => setCurrentPage(item.id as Page)}
+                            className={`flex flex-col items-center gap-1 h-auto py-2 px-2 text-xs ${
+                              currentPage === item.id
+                                ? 'text-pink-400 bg-pink-400/20'
+                                : 'text-gray-400 hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            <Icon className="w-6 h-6" />
+                            <span>{item.label}</span>
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </TooltipProvider>
