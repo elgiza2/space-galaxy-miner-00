@@ -11,13 +11,14 @@ import MiningPage from './components/MiningPage';
 import TasksPage from './components/TasksPage';
 import WalletPage from './components/WalletPage';
 import ReferralPage from './components/ReferralPage';
+import GamesPage from './components/GamesPage';
 import { Button } from '@/components/ui/button';
-import { Home, CheckSquare, Wallet, Users } from 'lucide-react';
+import { Home, CheckSquare, Wallet, Users, Gamepad2 } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
 type AppState = 'splash' | 'onboarding' | 'main';
-type Page = 'mining' | 'tasks' | 'wallet' | 'referral';
+type Page = 'mining' | 'tasks' | 'wallet' | 'referral' | 'games';
 
 const App = () => {
   const [appState, setAppState] = useState<AppState>('splash');
@@ -38,6 +39,7 @@ const App = () => {
     { id: 'tasks', label: 'المهام', icon: CheckSquare },
     { id: 'wallet', label: 'المحفظة', icon: Wallet },
     { id: 'referral', label: 'الأصدقاء', icon: Users },
+    { id: 'games', label: 'الألعاب', icon: Gamepad2 },
   ];
 
   const renderCurrentPage = () => {
@@ -50,6 +52,8 @@ const App = () => {
         return <WalletPage />;
       case 'referral':
         return <ReferralPage />;
+      case 'games':
+        return <GamesPage />;
       default:
         return <MiningPage />;
     }
@@ -80,7 +84,7 @@ const App = () => {
               {/* Bottom Navigation */}
               <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/20 p-4 z-50">
                 <div className="max-w-md mx-auto">
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-5 gap-2">
                     {navigationItems.map((item) => {
                       const Icon = item.icon;
                       return (
