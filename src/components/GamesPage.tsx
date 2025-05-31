@@ -1,31 +1,40 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Gamepad2, RotateCcw, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { getTranslation } from '../utils/language';
+
 interface GamesPageProps {
   onGameStateChange?: (isFullscreen: boolean) => void;
 }
+
 const GamesPage: React.FC<GamesPageProps> = ({
   onGameStateChange
 }) => {
   const [language, setLanguage] = React.useState('ar');
   const [activeGame, setActiveGame] = useState<string | null>(null);
+  
   const t = (key: string) => getTranslation(key, language);
+  
   const handleLanguageChange = (languageCode: string) => {
     setLanguage(languageCode);
   };
+  
   const openGame = (gameUrl: string) => {
     setActiveGame(gameUrl);
     onGameStateChange?.(true);
   };
+  
   const closeGame = () => {
     setActiveGame(null);
     onGameStateChange?.(false);
   };
+
   if (activeGame) {
-    return <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    return (
+      <div className="fixed inset-0 z-50 bg-black flex flex-col">
         {/* Game Header */}
         
 
@@ -35,12 +44,21 @@ const GamesPage: React.FC<GamesPageProps> = ({
         {/* Game Frame - Full Screen */}
         <div className="flex-1 p-4 py-[2px] px-0">
           <div className="h-full w-full bg-black rounded-xl overflow-hidden">
-            <iframe src={activeGame} className="w-full h-full border-0" title="Game" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+            <iframe 
+              src={activeGame} 
+              className="w-full h-full border-0" 
+              title="Game" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; gamepad *;" 
+              allowFullScreen 
+            />
           </div>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-3">
@@ -65,7 +83,32 @@ const GamesPage: React.FC<GamesPageProps> = ({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button onClick={() => openGame('https://slowroads.io/')} className="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold py-3 rounded-xl transition-all duration-300">
+              <Button 
+                onClick={() => openGame('https://slowroads.io/')} 
+                className="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold py-3 rounded-xl transition-all duration-300"
+              >
+                <Gamepad2 className="w-4 h-4 mr-2" />
+                {t('playNow')}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Count Masters Game */}
+          <Card className="glass-card hover:scale-105 transition-transform duration-300">
+            <CardHeader>
+              <div className="aspect-video bg-gradient-to-br from-orange-400 to-red-500 rounded-lg mb-4 flex items-center justify-center">
+                <div className="text-white text-4xl">🏃‍♂️</div>
+              </div>
+              <CardTitle className="text-white text-xl">Count Masters</CardTitle>
+              <CardDescription className="text-gray-300">
+                لعبة مثيرة لجمع الشخصيات والجري
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => openGame('https://www.crazygames.com/embed/count-masters-stickman-games')} 
+                className="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold py-3 rounded-xl transition-all duration-300"
+              >
                 <Gamepad2 className="w-4 h-4 mr-2" />
                 {t('playNow')}
               </Button>
@@ -77,23 +120,6 @@ const GamesPage: React.FC<GamesPageProps> = ({
             <CardHeader>
               <div className="aspect-video bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg mb-4 flex items-center justify-center">
                 <div className="text-white text-4xl">🎮</div>
-              </div>
-              <CardTitle className="text-white text-xl">{t('comingSoon')}</CardTitle>
-              <CardDescription className="text-gray-300">
-                {t('moreGamesComingSoon')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button disabled className="w-full bg-gray-600 text-gray-300 font-bold py-3 rounded-xl cursor-not-allowed">
-                {t('comingSoon')}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card opacity-50">
-            <CardHeader>
-              <div className="aspect-video bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg mb-4 flex items-center justify-center">
-                <div className="text-white text-4xl">🎯</div>
               </div>
               <CardTitle className="text-white text-xl">{t('comingSoon')}</CardTitle>
               <CardDescription className="text-gray-300">
@@ -122,6 +148,8 @@ const GamesPage: React.FC<GamesPageProps> = ({
           </Card>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default GamesPage;
