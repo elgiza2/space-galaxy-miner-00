@@ -1,13 +1,14 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Gamepad2 } from 'lucide-react';
+import { Gamepad2, RotateCcw, X } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { getTranslation } from '../utils/language';
 
 const GamesPage = () => {
   const [language, setLanguage] = React.useState('ar');
+  const [activeGame, setActiveGame] = useState<string | null>(null);
 
   const t = (key: string) => getTranslation(key, language);
 
@@ -15,9 +16,58 @@ const GamesPage = () => {
     setLanguage(languageCode);
   };
 
-  const openGame = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const openGame = (gameUrl: string) => {
+    setActiveGame(gameUrl);
   };
+
+  const closeGame = () => {
+    setActiveGame(null);
+  };
+
+  if (activeGame) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex flex-col">
+        {/* Game Header */}
+        <div className="flex justify-between items-center p-4 bg-black/20 backdrop-blur-lg">
+          <div className="flex items-center gap-3">
+            <Gamepad2 className="w-6 h-6 text-pink-400" />
+            <h1 className="text-xl font-bold text-white">Slow Roads</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={closeGame}
+            className="text-white hover:bg-white/10 h-10 px-3 rounded-xl"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Rotation Notice */}
+        <div className="bg-yellow-500/20 border border-yellow-500/30 p-4 mx-4 mt-4 rounded-xl">
+          <div className="flex items-center gap-3 justify-center">
+            <RotateCcw className="w-5 h-5 text-yellow-400" />
+            <p className="text-white text-center font-medium">
+              {t('rotatePhoneToPlay')}
+            </p>
+          </div>
+        </div>
+
+        {/* Game Frame */}
+        <div className="flex-1 p-4">
+          <div className="h-full bg-black rounded-xl overflow-hidden">
+            <iframe
+              src={activeGame}
+              className="w-full h-full border-0"
+              title="Game"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
@@ -49,7 +99,7 @@ const GamesPage = () => {
                 onClick={() => openGame('https://slowroads.io/')}
                 className="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold py-3 rounded-xl transition-all duration-300"
               >
-                <ExternalLink className="w-4 h-4 mr-2" />
+                <Gamepad2 className="w-4 h-4 mr-2" />
                 {t('playNow')}
               </Button>
             </CardContent>
