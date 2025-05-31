@@ -159,6 +159,28 @@ const GamesPage: React.FC<GamesPageProps> = ({
             </CardContent>
           </Card>
 
+          {/* Zombie Arena Game */}
+          <Card className="glass-card hover:scale-105 transition-transform duration-300">
+            <CardHeader>
+              <div className="aspect-video bg-gradient-to-br from-green-600 to-red-600 rounded-lg mb-4 flex items-center justify-center">
+                <div className="text-white text-4xl">🧟</div>
+              </div>
+              <CardTitle className="text-white text-xl">Zombie Arena</CardTitle>
+              <CardDescription className="text-gray-300">
+                لعبة حركة مثيرة ضد الزومبي
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => openGame('https://www.crazygames.com/embed/zombie-arena')} 
+                className="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-bold py-3 rounded-xl transition-all duration-300"
+              >
+                <Gamepad2 className="w-4 h-4 mr-2" />
+                {t('playNow')}
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Placeholder for more games */}
           <Card className="glass-card opacity-50">
             <CardHeader>
