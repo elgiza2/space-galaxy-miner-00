@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,53 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Settings, Plus, Edit, Trash2, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface TaskTemplate {
-  id: string;
-  title: string;
-  description: string;
-  type: 'telegram' | 'twitter' | 'daily' | 'referral';
-  reward: number;
-  url?: string;
-}
+import { useTasks, Task } from '@/contexts/TasksContext';
 
 const TaskManagementPage = () => {
   const { toast } = useToast();
-  const [tasks, setTasks] = useState<TaskTemplate[]>([
-    {
-      id: '1',
-      title: 'Join Telegram Channel',
-      description: 'Join our official Telegram channel to get the latest updates',
-      type: 'telegram',
-      reward: 0.01,
-      url: 'https://t.me/spacecoin'
-    },
-    {
-      id: '2',
-      title: 'Follow on Twitter',
-      description: 'Follow our official Twitter account and get rewarded',
-      type: 'twitter',
-      reward: 0.005,
-      url: 'https://twitter.com/spacecoin'
-    },
-    {
-      id: '3',
-      title: 'Invite 5 Friends',
-      description: 'Invite 5 friends to join the application',
-      type: 'referral',
-      reward: 0.025
-    },
-    {
-      id: '4',
-      title: 'Daily Login',
-      description: 'Login daily to receive your reward',
-      type: 'daily',
-      reward: 0.002
-    }
-  ]);
-
+  const { tasks, addTask, updateTask, deleteTask } = useTasks();
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingTask, setEditingTask] = useState<TaskTemplate | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [newTask, setNewTask] = useState<{
     title: string;
     description: string;
@@ -76,16 +37,14 @@ const TaskManagementPage = () => {
       return;
     }
 
-    const task: TaskTemplate = {
-      id: Date.now().toString(),
-      title: newTask.title,
-      description: newTask.description,
-      type: newTask.type,
-      reward: newTask.reward,
-      url: newTask.url || undefined
-    };
+    addTask({
+      title_key: newTask.title,
+      description_key: newTask.description,
+      task_type: newTask.type,
+      reward_amount: newTask.reward,
+      action_url: newTask.url || undefined
+    });
 
-    setTasks(prev => [...prev, task]);
     setNewTask({ title: '', description: '', type: 'telegram', reward: 0, url: '' });
     setShowAddModal(false);
 
@@ -95,14 +54,14 @@ const TaskManagementPage = () => {
     });
   };
 
-  const handleEditTask = (task: TaskTemplate) => {
+  const handleEditTask = (task: Task) => {
     setEditingTask(task);
     setNewTask({
-      title: task.title,
-      description: task.description,
-      type: task.type,
-      reward: task.reward,
-      url: task.url || ''
+      title: task.title_key,
+      description: task.description_key,
+      type: task.task_type as 'telegram' | 'twitter' | 'daily' | 'referral',
+      reward: task.reward_amount,
+      url: task.action_url || ''
     });
     setShowAddModal(true);
   };
@@ -117,18 +76,13 @@ const TaskManagementPage = () => {
       return;
     }
 
-    setTasks(prev => prev.map(task => 
-      task.id === editingTask.id 
-        ? {
-            ...task,
-            title: newTask.title,
-            description: newTask.description,
-            type: newTask.type,
-            reward: newTask.reward,
-            url: newTask.url || undefined
-          }
-        : task
-    ));
+    updateTask(editingTask.id, {
+      title_key: newTask.title,
+      description_key: newTask.description,
+      task_type: newTask.type,
+      reward_amount: newTask.reward,
+      action_url: newTask.url || undefined
+    });
 
     setEditingTask(null);
     setNewTask({ title: '', description: '', type: 'telegram', reward: 0, url: '' });
@@ -141,7 +95,7 @@ const TaskManagementPage = () => {
   };
 
   const handleDeleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
+    deleteTask(taskId);
     toast({
       title: "Success",
       description: "Task deleted successfully",
@@ -184,7 +138,7 @@ const TaskManagementPage = () => {
               </div>
               <div>
                 <p className="text-red-400 text-2xl font-bold">
-                  {tasks.reduce((sum, task) => sum + task.reward, 0).toFixed(3)}
+                  {tasks.reduce((sum, task) => sum + task.reward_amount, 0).toFixed(3)}
                 </p>
                 <p className="text-red-300 text-sm">Total Rewards</p>
               </div>
@@ -208,21 +162,26 @@ const TaskManagementPage = () => {
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-white text-base mb-1">{task.title}</CardTitle>
-                    <div className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${getTaskTypeColor(task.type)}`}>
-                      {task.type.toUpperCase()}
+                    <CardTitle className="text-white text-base mb-1">{task.title_key}</CardTitle>
+                    <div className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${getTaskTypeColor(task.task_type)}`}>
+                      {task.task_type.toUpperCase()}
                     </div>
+                    {task.completed && (
+                      <div className="inline-block ml-2 px-2 py-1 rounded-lg text-xs font-semibold bg-green-500/20 text-green-300">
+                        COMPLETED
+                      </div>
+                    )}
                   </div>
                   <div className="text-right ml-2">
-                    <p className="text-yellow-400 font-bold text-sm">+{task.reward}</p>
+                    <p className="text-yellow-400 font-bold text-sm">+{task.reward_amount}</p>
                     <p className="text-yellow-400 text-xs">TON</p>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-0">
-                <p className="text-gray-300 text-sm mb-3">{task.description}</p>
-                {task.url && (
-                  <p className="text-blue-400 text-xs mb-3 break-all">{task.url}</p>
+                <p className="text-gray-300 text-sm mb-3">{task.description_key}</p>
+                {task.action_url && (
+                  <p className="text-blue-400 text-xs mb-3 break-all">{task.action_url}</p>
                 )}
                 <div className="flex gap-2">
                   <Button

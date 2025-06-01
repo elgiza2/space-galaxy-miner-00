@@ -1,68 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw, Plus, Trash2, Edit } from 'lucide-react';
+import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Task {
-  id: string;
-  title_key: string;
-  description_key: string;
-  task_type: string;
-  reward_amount: number;
-  action_url?: string;
-  completed: boolean;
-}
+import { useTasks } from '@/contexts/TasksContext';
 
 const TasksPage = () => {
   const { toast } = useToast();
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title_key: 'Join Telegram Channel',
-      description_key: 'Join our official Telegram channel to get the latest updates',
-      task_type: 'telegram',
-      reward_amount: 0.01,
-      action_url: 'https://t.me/spacecoin',
-      completed: false
-    },
-    {
-      id: '2',
-      title_key: 'Follow on Twitter',
-      description_key: 'Follow our official Twitter account and get rewarded',
-      task_type: 'twitter',
-      reward_amount: 0.005,
-      action_url: 'https://twitter.com/spacecoin',
-      completed: false
-    },
-    {
-      id: '3',
-      title_key: 'Invite 5 Friends',
-      description_key: 'Invite 5 friends to join the application',
-      task_type: 'referral',
-      reward_amount: 0.025,
-      completed: false
-    },
-    {
-      id: '4',
-      title_key: 'Daily Login',
-      description_key: 'Login daily to receive your reward',
-      task_type: 'daily',
-      reward_amount: 0.002,
-      completed: false
-    },
-    {
-      id: '5',
-      title_key: 'Invite 20 Friends',
-      description_key: 'Invite 20 friends to earn a massive 0.5 TON reward',
-      task_type: 'referral',
-      reward_amount: 0.5,
-      completed: false
-    }
-  ]);
+  const { tasks, completeTask, addTask, deleteTask } = useTasks();
   const [isLoading, setIsLoading] = useState(false);
   const [titleClickCount, setTitleClickCount] = useState(0);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -89,11 +37,7 @@ const TasksPage = () => {
           return;
         }
 
-        setTasks(prevTasks => 
-          prevTasks.map(t => 
-            t.id === taskId ? { ...t, completed: true } : t
-          )
-        );
+        completeTask(taskId);
 
         toast({
           title: "Task Completed!",
@@ -138,17 +82,14 @@ const TasksPage = () => {
   };
 
   const handleAddTask = () => {
-    const task: Task = {
-      id: Date.now().toString(),
+    addTask({
       title_key: newTask.title,
       description_key: newTask.description,
       task_type: newTask.type,
       reward_amount: newTask.reward,
-      action_url: newTask.url || undefined,
-      completed: false
-    };
+      action_url: newTask.url || undefined
+    });
     
-    setTasks(prev => [...prev, task]);
     setNewTask({ title: '', description: '', type: 'telegram', reward: 0, url: '' });
     setShowAddTaskModal(false);
     
@@ -159,7 +100,7 @@ const TasksPage = () => {
   };
 
   const handleDeleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(t => t.id !== taskId));
+    deleteTask(taskId);
     toast({
       title: "Task Deleted",
       description: "Task has been removed",
