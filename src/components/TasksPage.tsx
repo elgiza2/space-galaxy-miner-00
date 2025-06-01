@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw, Plus, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Task {
@@ -23,7 +25,7 @@ const TasksPage = () => {
       title_key: 'انضم إلى قناة التليجرام',
       description_key: 'انضم إلى قناتنا الرسمية على التليجرام للحصول على آخر التحديثات',
       task_type: 'telegram',
-      reward_amount: 100,
+      reward_amount: 0.01,
       action_url: 'https://t.me/spacecoin',
       completed: false
     },
@@ -32,7 +34,7 @@ const TasksPage = () => {
       title_key: 'تابعنا على تويتر',
       description_key: 'تابع حسابنا الرسمي على تويتر واحصل على مكافأة',
       task_type: 'twitter',
-      reward_amount: 50,
+      reward_amount: 0.005,
       action_url: 'https://twitter.com/spacecoin',
       completed: false
     },
@@ -41,7 +43,7 @@ const TasksPage = () => {
       title_key: 'دعوة 5 أصدقاء',
       description_key: 'ادع 5 أصدقاء للانضمام إلى التطبيق',
       task_type: 'referral',
-      reward_amount: 250,
+      reward_amount: 0.025,
       completed: false
     },
     {
@@ -49,17 +51,26 @@ const TasksPage = () => {
       title_key: 'مهمة يومية - تسجيل الدخول',
       description_key: 'سجل دخولك يومياً للحصول على مكافأة',
       task_type: 'daily',
-      reward_amount: 25,
+      reward_amount: 0.002,
       completed: false
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [titleClickCount, setTitleClickCount] = useState(0);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    type: 'telegram',
+    reward: 0,
+    url: ''
+  });
 
   const handleCompleteTask = async (taskId: string) => {
     try {
       const task = tasks.find(t => t.id === taskId);
       if (task && !task.completed) {
-        // Update task completion status
         setTasks(prevTasks => 
           prevTasks.map(t => 
             t.id === taskId ? { ...t, completed: true } : t
@@ -68,7 +79,7 @@ const TasksPage = () => {
 
         toast({
           title: "مهمة مكتملة!",
-          description: `تم حصولك على ${task.reward_amount} $SPACE`,
+          description: `تم حصولك على ${task.reward_amount} TON`,
         });
       }
     } catch (error) {
@@ -83,10 +94,59 @@ const TasksPage = () => {
 
   const loadTasks = () => {
     setIsLoading(true);
-    // Simulate loading
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
+  };
+
+  const handleTitleClick = () => {
+    const newCount = titleClickCount + 1;
+    setTitleClickCount(newCount);
+    
+    if (newCount === 5) {
+      setShowAdminPanel(true);
+      setTitleClickCount(0);
+      toast({
+        title: "Admin Panel Unlocked",
+        description: "Welcome to the admin panel",
+      });
+    }
+    
+    // Reset count after 3 seconds if not reached 5
+    setTimeout(() => {
+      if (titleClickCount < 5) {
+        setTitleClickCount(0);
+      }
+    }, 3000);
+  };
+
+  const handleAddTask = () => {
+    const task: Task = {
+      id: Date.now().toString(),
+      title_key: newTask.title,
+      description_key: newTask.description,
+      task_type: newTask.type,
+      reward_amount: newTask.reward,
+      action_url: newTask.url || undefined,
+      completed: false
+    };
+    
+    setTasks(prev => [...prev, task]);
+    setNewTask({ title: '', description: '', type: 'telegram', reward: 0, url: '' });
+    setShowAddTaskModal(false);
+    
+    toast({
+      title: "Task Added",
+      description: "New task has been added successfully",
+    });
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+    toast({
+      title: "Task Deleted",
+      description: "Task has been removed",
+    });
   };
 
   const getTaskIcon = (taskType: string) => {
@@ -134,10 +194,13 @@ const TasksPage = () => {
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent mb-3">
+          <h1 
+            className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent mb-3 cursor-pointer"
+            onClick={handleTitleClick}
+          >
             المهام
           </h1>
-          <p className="text-gray-300 text-base leading-relaxed">أكمل المهام واحصل على مكافآت $SPACE</p>
+          <p className="text-gray-300 text-base leading-relaxed">أكمل المهام واحصل على مكافآت TON</p>
         </div>
 
         {/* Stats Cards */}
@@ -151,8 +214,8 @@ const TasksPage = () => {
           
           <Card className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border-2 border-yellow-500/40 rounded-2xl">
             <CardContent className="p-4 text-center">
-              <p className="text-yellow-400 text-2xl font-bold">{totalRewards}</p>
-              <p className="text-yellow-300 text-sm">$SPACE مكتسب</p>
+              <p className="text-yellow-400 text-2xl font-bold">{totalRewards.toFixed(4)}</p>
+              <p className="text-yellow-300 text-sm">TON مكتسب</p>
             </CardContent>
           </Card>
         </div>
@@ -201,10 +264,20 @@ const TasksPage = () => {
                           {task.title_key}
                         </CardTitle>
                       </div>
+                      {showAdminPanel && (
+                        <Button
+                          onClick={() => handleDeleteTask(task.id)}
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                     <div className="text-right ml-2">
                       <p className="text-yellow-400 font-bold text-sm">+{task.reward_amount}</p>
-                      <p className="text-yellow-400 text-xs">$SPACE</p>
+                      <p className="text-yellow-400 text-xs">TON</p>
                     </div>
                   </div>
                 </CardHeader>
@@ -245,7 +318,99 @@ const TasksPage = () => {
             ))
           )}
         </div>
+
+        {/* Admin Panel */}
+        {showAdminPanel && (
+          <Card className="bg-gradient-to-br from-red-500/15 to-orange-500/15 backdrop-blur-xl border-2 border-red-500/40 rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-white text-center">Admin Panel</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button
+                onClick={() => setShowAddTaskModal(true)}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Task
+              </Button>
+              
+              <div className="text-center text-white text-sm">
+                <p>Total Tasks: {tasks.length}</p>
+                <p>Completed: {completedTasksCount}</p>
+                <p>Pending: {tasks.length - completedTasksCount}</p>
+              </div>
+              
+              <Button
+                onClick={() => setShowAdminPanel(false)}
+                variant="outline"
+                className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
+              >
+                Close Admin Panel
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Add Task Modal */}
+      <Dialog open={showAddTaskModal} onOpenChange={setShowAddTaskModal}>
+        <DialogContent className="glass-card border-white/20 text-white max-w-md bg-indigo-700">
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <Input
+              placeholder="Task Title"
+              value={newTask.title}
+              onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+              className="bg-white/10 border-white/30 text-white"
+            />
+            
+            <Input
+              placeholder="Task Description"
+              value={newTask.description}
+              onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+              className="bg-white/10 border-white/30 text-white"
+            />
+            
+            <select
+              value={newTask.type}
+              onChange={(e) => setNewTask(prev => ({ ...prev, type: e.target.value }))}
+              className="w-full p-2 bg-white/10 border border-white/30 text-white rounded"
+            >
+              <option value="telegram">Telegram</option>
+              <option value="twitter">Twitter</option>
+              <option value="daily">Daily</option>
+              <option value="referral">Referral</option>
+            </select>
+            
+            <Input
+              type="number"
+              step="0.001"
+              placeholder="Reward (TON)"
+              value={newTask.reward}
+              onChange={(e) => setNewTask(prev => ({ ...prev, reward: parseFloat(e.target.value) || 0 }))}
+              className="bg-white/10 border-white/30 text-white"
+            />
+            
+            <Input
+              placeholder="Action URL (optional)"
+              value={newTask.url}
+              onChange={(e) => setNewTask(prev => ({ ...prev, url: e.target.value }))}
+              className="bg-white/10 border-white/30 text-white"
+            />
+            
+            <Button
+              onClick={handleAddTask}
+              disabled={!newTask.title || !newTask.description || newTask.reward <= 0}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+            >
+              Add Task
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
