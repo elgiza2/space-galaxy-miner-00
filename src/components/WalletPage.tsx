@@ -118,37 +118,37 @@ const WalletPage = () => {
   const isWalletConnected = !!tonConnectUI.wallet;
 
   return (
-    <div className="min-h-screen bg-black p-4 pb-24">
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Toner Header */}
-        <div className="text-center mb-8 relative">
+    <div className="min-h-screen bg-black p-3 pb-24">
+      <div className="max-w-sm mx-auto space-y-4">
+        {/* Compact Toner Header */}
+        <div className="text-center mb-6 relative">
           <div className="absolute top-0 right-0">
             <LanguageSwitcher onLanguageChange={() => setCurrentLanguage(getStoredLanguage())} />
           </div>
           
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center glow-blue">
-              <Wallet className="w-12 h-12 text-white" />
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center glow-blue">
+              <Wallet className="w-8 h-8 text-white" />
             </div>
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent mb-2">
             Toner
           </h1>
-          <h2 className="text-2xl font-semibold text-white mb-3">محفظة TON الذكية</h2>
-          <p className="text-gray-300 text-base">إدارة عملاتك الرقمية بأمان تام</p>
+          <h2 className="text-xl font-semibold text-white mb-2">محفظة TON الذكية</h2>
+          <p className="text-gray-300 text-sm">إدارة عملاتك الرقمية بأمان تام</p>
         </div>
 
-        {/* Enhanced Wallet Connection Status */}
+        {/* Compact Wallet Connection Status */}
         <Card className="wallet-card border-2 border-emerald-500/30">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`w-4 h-4 rounded-full ${isWalletConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${isWalletConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                 <div>
-                  <span className="text-white font-bold text-lg">
+                  <span className="text-white font-bold text-base">
                     {isWalletConnected ? '🟢 متصل بالمحفظة' : '🔴 غير متصل'}
                   </span>
-                  <p className="text-gray-300 text-sm">
+                  <p className="text-gray-300 text-xs">
                     {isWalletConnected ? 'المحفظة جاهزة للاستخدام' : 'اربط محفظتك للبدء'}
                   </p>
                 </div>
@@ -158,27 +158,27 @@ const WalletPage = () => {
                 disabled={isConnecting} 
                 variant="outline" 
                 size="sm" 
-                className={`${isWalletConnected ? 'bg-red-500/20 border-red-500/50 text-red-200 hover:bg-red-500/30' : 'bg-green-500/20 border-green-500/50 text-green-200 hover:bg-green-500/30'} font-semibold`}
+                className={`${isWalletConnected ? 'bg-red-500/20 border-red-500/50 text-red-200 hover:bg-red-500/30' : 'bg-green-500/20 border-green-500/50 text-green-200 hover:bg-green-500/30'} font-semibold text-xs px-3 py-2`}
               >
-                {isWalletConnected ? <LogOut className="w-4 h-4 mr-2" /> : <LogIn className="w-4 h-4 mr-2" />}
+                {isWalletConnected ? <LogOut className="w-3 h-3 mr-1" /> : <LogIn className="w-3 h-3 mr-1" />}
                 {isConnecting ? 'جاري الاتصال...' : (isWalletConnected ? 'قطع الاتصال' : 'ربط المحفظة')}
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Enhanced TON Balance Card */}
+        {/* Compact TON Balance Card */}
         <Card className="mining-card border-2 border-blue-500/30 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10"></div>
-          <CardHeader className="pb-4 relative z-10">
+          <CardHeader className="pb-3 relative z-10">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-white flex items-center gap-4 text-2xl">
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                  <Coins className="w-7 h-7 text-white" />
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <Coins className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <span className="block text-2xl font-bold">TON</span>
-                  <span className="text-base text-blue-300 font-normal">عملة التليجرام</span>
+                  <span className="block text-xl font-bold">TON</span>
+                  <span className="text-sm text-blue-300 font-normal">عملة التليجرام</span>
                 </div>
               </CardTitle>
               <Button 
@@ -186,54 +186,54 @@ const WalletPage = () => {
                 size="sm" 
                 onClick={() => loadWalletData(currentAddress)} 
                 disabled={isLoading} 
-                className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-12 w-12 p-0 rounded-xl"
+                className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-10 w-10 p-0 rounded-xl"
               >
-                <RefreshCw className={`w-6 h-6 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </CardHeader>
           <CardContent className="pt-0 relative z-10">
-            <p className="font-bold text-white mb-4 text-4xl">
+            <p className="font-bold text-white mb-3 text-3xl">
               {tonBalance.toFixed(4)} <span className="text-blue-400">TON</span>
             </p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-green-400">
-                <TrendingUp className="w-5 h-5" />
-                <span className="text-base font-semibold">+2.5% اليوم</span>
+                <TrendingUp className="w-4 h-4" />
+                <span className="text-sm font-semibold">+2.5% اليوم</span>
               </div>
               <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400" />
-                <span className="text-yellow-300 text-sm">Toner</span>
+                <Star className="w-3 h-3 text-yellow-400" />
+                <span className="text-yellow-300 text-xs">Toner</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Enhanced Action Buttons */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Compact Action Buttons */}
+        <div className="grid grid-cols-2 gap-3">
           <Button
             onClick={() => setShowSendModal(true)}
-            className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 h-16 text-lg font-bold rounded-2xl shadow-lg"
+            className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 h-12 text-base font-bold rounded-xl shadow-lg"
           >
-            <Send className="w-6 h-6 mr-3" />
+            <Send className="w-4 h-4 mr-2" />
             إرسال TON
           </Button>
           <Button
             onClick={() => setShowReceiveModal(true)}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-16 text-lg font-bold rounded-2xl shadow-lg"
+            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-12 text-base font-bold rounded-xl shadow-lg"
           >
-            <ArrowDownToLine className="w-6 h-6 mr-3" />
+            <ArrowDownToLine className="w-4 h-4 mr-2" />
             استقبال TON
           </Button>
         </div>
 
-        {/* Enhanced Wallet Address */}
-        <Card className="bg-gradient-to-br from-gray-800/40 to-slate-800/40 backdrop-blur-xl border-2 border-gray-500/30 rounded-2xl">
-          <CardContent className="p-6">
+        {/* Compact Wallet Address */}
+        <Card className="bg-gradient-to-br from-gray-800/40 to-slate-800/40 backdrop-blur-xl border-2 border-gray-500/30 rounded-xl">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0 mr-4">
-                <p className="text-sm text-gray-400 mb-2 font-semibold">🏠 عنوان المحفظة</p>
-                <code className="text-sm text-gray-200 break-all font-mono leading-relaxed bg-gray-900/50 p-2 rounded-lg block">
+              <div className="flex-1 min-w-0 mr-3">
+                <p className="text-xs text-gray-400 mb-1 font-semibold">🏠 عنوان المحفظة</p>
+                <code className="text-xs text-gray-200 break-all font-mono leading-relaxed bg-gray-900/50 p-2 rounded-lg block">
                   {currentAddress}
                 </code>
               </div>
@@ -241,45 +241,45 @@ const WalletPage = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => copyToClipboard(currentAddress)}
-                className="text-gray-400 hover:text-white hover:bg-white/10 h-12 w-12 p-0 rounded-xl flex-shrink-0"
+                className="text-gray-400 hover:text-white hover:bg-white/10 h-10 w-10 p-0 rounded-xl flex-shrink-0"
               >
-                <Copy className="w-5 h-5" />
+                <Copy className="w-4 h-4" />
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Enhanced Transaction History */}
+        {/* Compact Transaction History */}
         <Card className="mining-card border-2 border-blue-500/30">
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-white text-2xl font-bold">📊 آخر المعاملات</CardTitle>
+              <CardTitle className="text-white text-lg font-bold">📊 آخر المعاملات</CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => loadWalletData(currentAddress)} 
                 disabled={isLoading} 
-                className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-12 w-12 p-0 rounded-xl"
+                className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-10 w-10 p-0 rounded-xl"
               >
-                <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="pt-0 space-y-4">
+          <CardContent className="pt-0 space-y-3">
             {isLoading ? (
-              <div className="text-center text-gray-400 py-12">
-                <RefreshCw className="w-12 h-12 animate-spin mx-auto mb-4" />
-                <p className="text-lg font-semibold">جاري تحميل المعاملات...</p>
-                <p className="text-sm">يرجى الانتظار</p>
+              <div className="text-center text-gray-400 py-8">
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3" />
+                <p className="text-base font-semibold">جاري تحميل المعاملات...</p>
+                <p className="text-xs">يرجى الانتظار</p>
               </div>
             ) : transactions.length === 0 ? (
-              <div className="text-center text-gray-400 py-12">
-                <Wallet className="w-20 h-20 mx-auto mb-6 opacity-50" />
-                <p className="text-xl font-bold mb-2">📭 لا توجد معاملات</p>
-                <p className="text-base mb-4">ابدأ بإرسال أو استقبال عملات TON</p>
+              <div className="text-center text-gray-400 py-8">
+                <Wallet className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-bold mb-2">📭 لا توجد معاملات</p>
+                <p className="text-sm mb-3">ابدأ بإرسال أو استقبال عملات TON</p>
                 <div className="flex items-center justify-center gap-2 text-blue-300">
-                  <Star className="w-4 h-4" />
-                  <span className="text-sm">مدعوم من Toner</span>
+                  <Star className="w-3 h-3" />
+                  <span className="text-xs">مدعوم من Toner</span>
                 </div>
               </div>
             ) : (

@@ -21,7 +21,7 @@ const MINING_PHRASES = [
 const MiningPage: React.FC = () => {
   const { toast } = useToast();
   const [currentPhrase, setCurrentPhrase] = useState(0);
-  const [miningActive, setMiningActive] = useState(false);
+  const [miningActive, setMiningActive] = useState(true); // Always active by default
   const [tonBalance, setTonBalance] = useState(0.15);
   const [miningSpeed, setMiningSpeed] = useState(1);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -55,23 +55,17 @@ const MiningPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Mining logic
+  // Mining logic - always active
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (miningActive && isWalletConnected) {
-      interval = setInterval(() => {
+    const interval = setInterval(() => {
+      if (isWalletConnected) {
         const earnings = miningSpeed * 0.001;
         setMiningEarnings(prev => prev + earnings);
         setTotalMined(prev => prev + earnings);
-      }, 1000);
-    }
+      }
+    }, 1000);
     return () => clearInterval(interval);
-  }, [miningActive, isWalletConnected, miningSpeed]);
-
-  const handleStartMining = () => {
-    setMiningActive(!miningActive);
-    hapticFeedback(miningActive ? 'light' : 'success');
-  };
+  }, [isWalletConnected, miningSpeed]);
 
   const handleClaim = () => {
     if (miningEarnings > 0) {
@@ -146,32 +140,32 @@ const MiningPage: React.FC = () => {
   const canWithdraw = tonBalance >= 1 && friendsInvited >= 3 && hasDeposited;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 space-y-6 relative">
-      {/* Toner Header */}
+    <div className="min-h-screen flex flex-col items-center justify-center p-3 space-y-4 relative">
+      {/* Compact Toner Header */}
       <motion.div 
         initial={{ scale: 0, opacity: 0 }} 
         animate={{ scale: 1, opacity: 1 }} 
         transition={{ duration: 1 }} 
-        className="text-center relative mb-4"
+        className="text-center relative mb-3"
       >
-        {/* Toner Logo */}
-        <div className="flex items-center justify-center mb-4">
+        {/* Compact Toner Logo */}
+        <div className="flex items-center justify-center mb-3">
           <motion.div 
-            className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center glow-blue mr-3"
+            className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center glow-blue mr-2"
             animate={{ rotate: 360 }}
             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
           >
-            <Pickaxe className="w-10 h-10 text-white" />
+            <Pickaxe className="w-6 h-6 text-white" />
           </motion.div>
           <div className="text-left">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent">
               Toner
             </h1>
-            <p className="text-blue-300 text-lg font-semibold">منصة تعدين TON</p>
+            <p className="text-blue-300 text-sm font-semibold">منصة تعدين TON</p>
           </div>
         </div>
         
-        <div className="h-16 flex items-center justify-center">
+        <div className="h-12 flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.h2
               key={currentPhrase} 
@@ -179,7 +173,7 @@ const MiningPage: React.FC = () => {
               animate={{ y: 0, opacity: 1 }} 
               exit={{ y: -20, opacity: 0 }} 
               transition={{ duration: 0.6 }} 
-              className="text-xl md:text-2xl font-semibold text-white"
+              className="text-lg font-semibold text-white"
             >
               {MINING_PHRASES[currentPhrase]}
             </motion.h2>
@@ -187,63 +181,63 @@ const MiningPage: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Enhanced Mining Stats Cards */}
-      <div className="w-full max-w-md space-y-4">
+      {/* Compact Mining Stats Cards */}
+      <div className="w-full max-w-sm space-y-3">
         {/* Main Balance Card */}
         <Card className="mining-card relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10"></div>
-          <CardHeader className="pb-3 relative z-10">
-            <CardTitle className="text-white text-center flex items-center justify-center gap-3">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                <Coins className="w-5 h-5 text-white" />
+          <CardHeader className="pb-2 relative z-10">
+            <CardTitle className="text-white text-center flex items-center justify-center gap-2 text-lg">
+              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <Coins className="w-4 h-4 text-white" />
               </div>
               رصيد TON
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center relative z-10">
+          <CardContent className="text-center relative z-10 pt-0 pb-4">
             <motion.div 
               key={tonBalance} 
               initial={{ scale: 1.1, color: '#3b82f6' }} 
               animate={{ scale: 1, color: '#ffffff' }} 
-              className="text-4xl font-bold mb-3"
+              className="text-2xl font-bold mb-2"
             >
               {tonBalance.toFixed(4)} <span className="text-blue-400">TON</span>
             </motion.div>
             {miningEarnings > 0 && (
-              <div className="text-green-400 text-sm font-semibold">
+              <div className="text-green-400 text-xs font-semibold">
                 +{miningEarnings.toFixed(4)} TON متاح للجمع
               </div>
             )}
-            <div className="text-gray-300 text-sm mt-2">
+            <div className="text-gray-300 text-xs mt-1">
               إجمالي المعدن: {totalMined.toFixed(4)} TON
             </div>
           </CardContent>
         </Card>
 
-        {/* Enhanced Mining Stats */}
+        {/* Compact Mining Stats */}
         <Card className="mining-card">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="bg-yellow-500/10 rounded-xl p-3">
-                <div className="flex items-center justify-center mb-2">
-                  <Zap className="w-6 h-6 text-yellow-400" />
+          <CardContent className="p-4">
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="bg-yellow-500/10 rounded-xl p-2">
+                <div className="flex items-center justify-center mb-1">
+                  <Zap className="w-4 h-4 text-yellow-400" />
                 </div>
-                <div className="text-2xl font-bold text-white">{miningSpeed}x</div>
+                <div className="text-lg font-bold text-white">{miningSpeed}x</div>
                 <div className="text-xs text-yellow-200">سرعة التعدين</div>
               </div>
-              <div className="bg-green-500/10 rounded-xl p-3">
-                <div className="flex items-center justify-center mb-2">
-                  <Users className="w-6 h-6 text-green-400" />
+              <div className="bg-green-500/10 rounded-xl p-2">
+                <div className="flex items-center justify-center mb-1">
+                  <Users className="w-4 h-4 text-green-400" />
                 </div>
-                <div className="text-2xl font-bold text-white">{friendsInvited}/3</div>
+                <div className="text-lg font-bold text-white">{friendsInvited}/3</div>
                 <div className="text-xs text-green-200">الأصدقاء</div>
               </div>
-              <div className="bg-blue-500/10 rounded-xl p-3">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className="w-6 h-6 text-blue-400" />
+              <div className="bg-blue-500/10 rounded-xl p-2">
+                <div className="flex items-center justify-center mb-1">
+                  <TrendingUp className="w-4 h-4 text-blue-400" />
                 </div>
-                <div className="text-xl font-bold text-white">
-                  {miningActive ? 'نشط' : 'متوقف'}
+                <div className="text-sm font-bold text-white">
+                  نشط
                 </div>
                 <div className="text-xs text-blue-200">حالة التعدين</div>
               </div>
@@ -252,38 +246,25 @@ const MiningPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* Enhanced Action Buttons */}
-      <div className="space-y-4 w-full max-w-md">
+      {/* Compact Action Buttons */}
+      <div className="space-y-3 w-full max-w-sm">
         {/* Claim Button */}
         <Button 
           onClick={handleClaim} 
           disabled={miningEarnings <= 0}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-16 text-lg font-bold rounded-2xl disabled:opacity-50 shadow-lg" 
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-12 text-base font-bold rounded-xl disabled:opacity-50 shadow-lg" 
         >
-          <Gift className="w-6 h-6 mr-3" />
+          <Gift className="w-5 h-5 mr-2" />
           جمع المكافآت ({miningEarnings.toFixed(4)} TON)
-        </Button>
-
-        {/* Mining Toggle Button */}
-        <Button 
-          onClick={handleStartMining} 
-          className={`w-full h-16 text-lg font-bold rounded-2xl shadow-lg ${
-            miningActive 
-              ? 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700' 
-              : 'mining-button bg-gradient-to-r from-blue-500 to-blue-700'
-          }`}
-        >
-          <Pickaxe className="w-6 h-6 mr-3" />
-          {miningActive ? 'إيقاف التعدين' : 'بدء التعدين'}
         </Button>
 
         {/* Upgrade Button */}
         <Button 
           onClick={handleUpgradeClick} 
           variant="outline" 
-          className="w-full h-14 bg-blue-500/10 border-blue-500/50 text-blue-200 hover:bg-blue-500/20 rounded-2xl border-2 font-semibold" 
+          className="w-full h-12 bg-blue-500/10 border-blue-500/50 text-blue-200 hover:bg-blue-500/20 rounded-xl border-2 font-semibold" 
         >
-          <TrendingUp className="w-5 h-5 mr-3" />
+          <TrendingUp className="w-4 h-4 mr-2" />
           ترقية سرعة التعدين
         </Button>
 
@@ -291,62 +272,62 @@ const MiningPage: React.FC = () => {
         <Button 
           onClick={handleWithdraw} 
           disabled={!canWithdraw}
-          className={`w-full h-14 rounded-2xl font-semibold ${
+          className={`w-full h-12 rounded-xl font-semibold ${
             canWithdraw 
               ? 'bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700' 
               : 'bg-gray-600 cursor-not-allowed'
           }`}
         >
-          <ArrowDownToLine className="w-5 h-5 mr-3" />
+          <ArrowDownToLine className="w-4 h-4 mr-2" />
           {tonBalance < 1 ? `سحب (${tonBalance.toFixed(4)}/1.0 TON)` : 
            friendsInvited < 3 ? `سحب (${friendsInvited}/3 أصدقاء)` :
            !hasDeposited ? 'سحب (إيداع 0.1 TON)' : 'سحب TON'}
         </Button>
       </div>
 
-      {/* Enhanced Free Package Notification */}
+      {/* Compact Free Package Notification */}
       {hasFreePackage && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md p-6 bg-gradient-to-r from-green-500/20 to-blue-500/20 border-2 border-green-500/50 rounded-3xl text-center shadow-lg"
+          className="w-full max-w-sm p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 border-2 border-green-500/50 rounded-2xl text-center shadow-lg"
         >
-          <div className="flex items-center justify-center mb-3">
-            <Star className="w-8 h-8 text-yellow-400 mr-2" />
-            <Gift className="w-8 h-8 text-green-400" />
+          <div className="flex items-center justify-center mb-2">
+            <Star className="w-6 h-6 text-yellow-400 mr-1" />
+            <Gift className="w-6 h-6 text-green-400" />
           </div>
-          <p className="text-green-200 font-bold text-lg mb-1">🎁 حزمة ترحيبية من Toner!</p>
+          <p className="text-green-200 font-bold text-base mb-1">🎁 حزمة ترحيبية من Toner!</p>
           <p className="text-green-300 text-sm">تعدين بسرعة 2x مفعل الآن</p>
         </motion.div>
       )}
 
-      {/* Enhanced Upgrade Modal */}
+      {/* Upgrade Modal */}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="mining-card border-blue-500/40 text-white max-w-md bg-black/90 backdrop-blur-xl">
-          <DialogHeader className="text-center mb-6">
-            <DialogTitle className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-2">
+        <DialogContent className="mining-card border-blue-500/40 text-white max-w-sm bg-black/90 backdrop-blur-xl">
+          <DialogHeader className="text-center mb-4">
+            <DialogTitle className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-2">
               ⚡ ترقية سرعة التعدين
             </DialogTitle>
-            <p className="text-gray-300">اختر الحزمة المناسبة لك</p>
+            <p className="text-gray-300 text-sm">اختر الحزمة المناسبة لك</p>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {UPGRADE_OPTIONS.map(upgrade => (
               <motion.div key={upgrade.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button 
                   onClick={() => handlePurchaseUpgrade(upgrade)} 
                   disabled={tonBalance < upgrade.price}
-                  className="w-full p-6 h-auto flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border-2 border-blue-500/30 rounded-2xl disabled:opacity-50 text-right" 
+                  className="w-full p-4 h-auto flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border-2 border-blue-500/30 rounded-xl disabled:opacity-50 text-right" 
                   variant="ghost"
                 >
                   <div className="text-right">
-                    <div className="font-bold text-xl text-white mb-1">{upgrade.label}</div>
+                    <div className="font-bold text-lg text-white mb-1">{upgrade.label}</div>
                     <div className="text-sm text-blue-300">
                       ⚡ تعدين أسرع {upgrade.multiplier}x
                     </div>
                   </div>
                   <div className="text-left">
-                    <div className="font-bold text-blue-400 text-lg">
+                    <div className="font-bold text-blue-400 text-base">
                       {formatTON(upgrade.price)}
                     </div>
                   </div>
