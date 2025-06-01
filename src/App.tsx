@@ -5,7 +5,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TonConnectUIProvider, useTonConnectUI } from '@tonconnect/ui-react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { TasksProvider } from './contexts/TasksContext';
 import { MiningProvider } from './contexts/MiningContext';
 import MiningPage from './components/MiningPage';
@@ -13,7 +12,6 @@ import TasksPage from './components/TasksPage';
 import ReferralPage from './components/ReferralPage';
 import TaskManagementPage from './components/TaskManagementPage';
 import WalletConnectPage from './components/WalletConnectPage';
-import AuthPage from './components/AuthPage';
 import { Button } from '@/components/ui/button';
 import { Home, CheckSquare, Users } from 'lucide-react';
 
@@ -26,7 +24,6 @@ const MainApp = () => {
   const [currentPage, setCurrentPage] = useState<Page>('mining');
   const [tasksClickCount, setTasksClickCount] = useState(0);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     const checkWalletConnection = () => {
@@ -84,18 +81,6 @@ const MainApp = () => {
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 flex items-center justify-center">
-        <div className="text-white text-xl">جاري التحميل...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AuthPage />;
-  }
-
   if (!isWalletConnected) {
     return <WalletConnectPage />;
   }
@@ -143,11 +128,9 @@ const App = () => {
     <TonConnectUIProvider manifestUrl={window.location.origin + '/tonconnect-manifest.json'}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <MainApp />
-          </AuthProvider>
+          <Toaster />
+          <Sonner />
+          <MainApp />
         </TooltipProvider>
       </QueryClientProvider>
     </TonConnectUIProvider>

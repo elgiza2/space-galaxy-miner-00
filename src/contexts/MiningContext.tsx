@@ -1,8 +1,13 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { profilesService } from '@/services/profilesService';
 import { useToast } from '@/hooks/use-toast';
-import type { Profile } from '@/types/database';
+
+interface Profile {
+  mining_earnings: number;
+  total_mined: number;
+  mining_speed: number;
+  ton_balance: number;
+}
 
 interface MiningContextType {
   profile: Profile | null;
@@ -26,15 +31,23 @@ interface MiningProviderProps {
 }
 
 export const MiningProvider: React.FC<MiningProviderProps> = ({ children }) => {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>({
+    mining_earnings: 0,
+    total_mined: 0,
+    mining_speed: 1,
+    ton_balance: 0
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const refreshProfile = async () => {
     try {
       setIsLoading(true);
-      const profileData = await profilesService.getProfile();
-      setProfile(profileData);
+      // Load from localStorage
+      const savedProfile = localStorage.getItem('mining_profile');
+      if (savedProfile) {
+        setProfile(JSON.parse(savedProfile));
+      }
     } catch (error) {
       console.error('Error refreshing profile:', error);
     } finally {
@@ -44,14 +57,14 @@ export const MiningProvider: React.FC<MiningProviderProps> = ({ children }) => {
 
   const updateMiningEarnings = async (earnings: number, totalMined: number) => {
     try {
-      await profilesService.updateMiningBalance(earnings, totalMined);
-      if (profile) {
-        setProfile({
-          ...profile,
-          mining_earnings: earnings,
-          total_mined: totalMined
-        });
-      }
+      const updatedProfile = {
+        ...profile!,
+        mining_earnings: earnings,
+        total_mined: totalMined
+      };
+      setProfile(updatedProfile);
+      // Save to localStorage
+      localStorage.setItem('mining_profile', JSON.stringify(updatedProfile));
     } catch (error) {
       console.error('Error updating mining earnings:', error);
       toast({
