@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -129,14 +128,17 @@ const MiningPage: React.FC = () => {
       >
         <div className="flex items-center justify-center mb-3">
           <motion.div 
-            className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center glow-blue mr-2"
+            className="w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 rounded-full flex items-center justify-center shadow-lg mr-2"
             animate={{ rotate: 360 }}
             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            style={{ 
+              boxShadow: '0 0 30px rgba(59, 130, 246, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.2)' 
+            }}
           >
             <img 
               src="/lovable-uploads/56e51793-4912-4a28-9c5b-611c28fb68d6.png" 
               alt="TON Logo" 
-              className="w-8 h-8 rounded-full"
+              className="w-10 h-10 rounded-full object-cover"
             />
           </motion.div>
           <div className="text-left">
@@ -170,11 +172,11 @@ const MiningPage: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10"></div>
           <CardHeader className="pb-2 relative z-10">
             <CardTitle className="text-white text-center flex items-center justify-center gap-2 text-lg">
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-gradient-to-br from-blue-500 via-blue-600 to-cyan-500 rounded-full flex items-center justify-center shadow-md">
                 <img 
                   src="/lovable-uploads/56e51793-4912-4a28-9c5b-611c28fb68d6.png" 
                   alt="TON Logo" 
-                  className="w-4 h-4 rounded-full"
+                  className="w-4 h-4 rounded-full object-cover"
                 />
               </div>
               TON Balance
@@ -269,22 +271,6 @@ const MiningPage: React.FC = () => {
            !hasDeposited ? 'Withdraw (Deposit 0.1 TON)' : 'Withdraw TON'}
         </Button>
       </div>
-
-      {/* Free Package Notification */}
-      {hasFreePackage && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 border-2 border-green-500/50 rounded-2xl text-center shadow-lg"
-        >
-          <div className="flex items-center justify-center mb-2">
-            <Star className="w-6 h-6 text-yellow-400 mr-1" />
-            <Gift className="w-6 h-6 text-green-400" />
-          </div>
-          <p className="text-green-200 font-bold text-base mb-1">🎁 Welcome Package!</p>
-          <p className="text-green-300 text-sm">2x mining speed activated</p>
-        </motion.div>
-      )}
 
       {/* Compact Upgrade Modal */}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
