@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,10 +52,16 @@ const TaskManagementPage = () => {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskTemplate | null>(null);
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<{
+    title: string;
+    description: string;
+    type: 'telegram' | 'twitter' | 'daily' | 'referral';
+    reward: number;
+    url: string;
+  }>({
     title: '',
     description: '',
-    type: 'telegram' as const,
+    type: 'telegram',
     reward: 0,
     url: ''
   });
@@ -270,7 +275,7 @@ const TaskManagementPage = () => {
               
               <select
                 value={newTask.type}
-                onChange={(e) => setNewTask(prev => ({ ...prev, type: e.target.value as any }))}
+                onChange={(e) => setNewTask(prev => ({ ...prev, type: e.target.value as 'telegram' | 'twitter' | 'daily' | 'referral' }))}
                 className="w-full p-3 bg-white/10 border border-white/30 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="telegram">Telegram</option>
