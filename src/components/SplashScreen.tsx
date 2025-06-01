@@ -134,7 +134,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 }}
               />
             ))}
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
