@@ -6,11 +6,11 @@ import { Users, ExternalLink, Gift } from 'lucide-react';
 
 const ReferralPage = () => {
   const openTelegramBotWithCommand = () => {
-    const telegramUrl = 'https://t.me/Toneerbot?start=toneel';
+    const telegramUrl = 'https://t.me/Spongaibot?start=toneel';
     window.open(telegramUrl, '_blank');
     
     setTimeout(() => {
-      const deepLink = 'tg://resolve?domain=Toneerbot&start=toneel';
+      const deepLink = 'tg://resolve?domain=Spongaibot&start=toneel';
       window.location.href = deepLink;
     }, 100);
   };

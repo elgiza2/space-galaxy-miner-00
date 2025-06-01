@@ -64,7 +64,7 @@ export const getReferralCode = (): string | null => {
 };
 
 export const generateReferralLink = (userId: number): string => {
-  return `https://t.me/Spacelbot?start=${userId}`;
+  return `https://t.me/Spongaibot?start=${userId}`;
 };
 
 export const hapticFeedback = (type: 'light' | 'medium' | 'heavy' | 'success' | 'error' | 'warning') => {
