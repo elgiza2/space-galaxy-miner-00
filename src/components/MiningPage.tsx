@@ -17,12 +17,23 @@ const MINING_PHRASES = [
   'Invest in the future of TON'
 ];
 
+interface UserData {
+  tonBalance: number;
+  miningSpeed: number;
+  miningEarnings: number;
+  totalMined: number;
+  hasDeposited: boolean;
+  hasFreePackage: boolean;
+  lastSaveTime: number;
+  friendsInvited: number;
+}
+
 const MiningPage: React.FC = () => {
   const [tonConnectUI] = useTonConnectUI();
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [miningActive, setMiningActive] = useState(true);
-  const [tonBalance, setTonBalance] = useState(0); // Set to 0 initially
-  const [miningSpeed, setMiningSpeed] = useState(0.05); // 0.05 per day
+  const [tonBalance, setTonBalance] = useState(0);
+  const [miningSpeed, setMiningSpeed] = useState(0.05);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(true);
   const [friendsInvited, setFriendsInvited] = useState(1);
@@ -31,16 +42,92 @@ const MiningPage: React.FC = () => {
   const [miningEarnings, setMiningEarnings] = useState(0);
   const [totalMined, setTotalMined] = useState(0);
 
-  // Check for first visit and give free mining package
+  // Load user data from localStorage
+  const loadUserData = (): UserData | null => {
+    try {
+      const savedData = localStorage.getItem('toner-user-data');
+      return savedData ? JSON.parse(savedData) : null;
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      return null;
+    }
+  };
+
+  // Save user data to localStorage
+  const saveUserData = (data: UserData) => {
+    try {
+      localStorage.setItem('toner-user-data', JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving user data:', error);
+    }
+  };
+
+  // Initialize user data on component mount
   useEffect(() => {
-    const firstVisit = localStorage.getItem('toner-first-visit');
-    if (!firstVisit) {
+    const savedData = loadUserData();
+    const now = Date.now();
+    
+    if (savedData) {
+      // Calculate offline earnings based on time difference
+      const timeDiff = (now - savedData.lastSaveTime) / 1000; // seconds
+      const offlineEarnings = timeDiff * 0.000001 * savedData.miningSpeed;
+      
+      // Restore saved data
+      setTonBalance(savedData.tonBalance);
+      setMiningSpeed(savedData.miningSpeed);
+      setMiningEarnings(savedData.miningEarnings + offlineEarnings);
+      setTotalMined(savedData.totalMined + offlineEarnings);
+      setHasDeposited(savedData.hasDeposited);
+      setHasFreePackage(savedData.hasFreePackage);
+      setFriendsInvited(savedData.friendsInvited);
+    } else {
+      // First visit - give free mining package
       setHasFreePackage(true);
-      setMiningSpeed(0.1); // 2x of 0.05
+      setMiningSpeed(0.1);
       setMiningActive(true);
       localStorage.setItem('toner-first-visit', 'true');
     }
   }, []);
+
+  // Save user data periodically and on changes
+  useEffect(() => {
+    const userData: UserData = {
+      tonBalance,
+      miningSpeed,
+      miningEarnings,
+      totalMined,
+      hasDeposited,
+      hasFreePackage,
+      lastSaveTime: Date.now(),
+      friendsInvited
+    };
+    
+    saveUserData(userData);
+  }, [tonBalance, miningSpeed, miningEarnings, totalMined, hasDeposited, hasFreePackage, friendsInvited]);
+
+  // Save data when user leaves the page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const userData: UserData = {
+        tonBalance,
+        miningSpeed,
+        miningEarnings,
+        totalMined,
+        hasDeposited,
+        hasFreePackage,
+        lastSaveTime: Date.now(),
+        friendsInvited
+      };
+      saveUserData(userData);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload(); // Save data on component unmount
+    };
+  }, [tonBalance, miningSpeed, miningEarnings, totalMined, hasDeposited, hasFreePackage, friendsInvited]);
 
   // Rotate phrases
   useEffect(() => {
