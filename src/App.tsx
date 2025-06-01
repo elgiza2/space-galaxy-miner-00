@@ -34,10 +34,10 @@ const App = () => {
   };
 
   const navigationItems = [
-    { id: 'mining', label: 'التعدين', icon: Home },
-    { id: 'tasks', label: 'المهام', icon: CheckSquare },
-    { id: 'wallet', label: 'المحفظة', icon: Wallet },
-    { id: 'referral', label: 'الأصدقاء', icon: Users },
+    { id: 'mining', label: 'Mining', icon: Home },
+    { id: 'tasks', label: 'Tasks', icon: CheckSquare },
+    { id: 'wallet', label: 'Wallet', icon: Wallet },
+    { id: 'referral', label: 'Friends', icon: Users },
   ];
 
   const renderCurrentPage = () => {

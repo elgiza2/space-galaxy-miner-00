@@ -81,10 +81,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
             className="text-center mb-6"
           >
             <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 mb-2">
-              منصة TON
+              TON Platform
             </h1>
             <h2 className="text-xl font-semibold text-white">
-              أفضل تطبيق لتعدين العملات الرقمية
+              Best Mining Platform
             </h2>
           </motion.div>
 
@@ -134,7 +134,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 }}
               />
             ))}
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

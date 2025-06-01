@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,8 +21,8 @@ const TasksPage = () => {
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: '1',
-      title_key: 'انضم إلى قناة التليجرام',
-      description_key: 'انضم إلى قناتنا الرسمية على التليجرام للحصول على آخر التحديثات',
+      title_key: 'Join Telegram Channel',
+      description_key: 'Join our official Telegram channel to get the latest updates',
       task_type: 'telegram',
       reward_amount: 0.01,
       action_url: 'https://t.me/spacecoin',
@@ -31,8 +30,8 @@ const TasksPage = () => {
     },
     {
       id: '2',
-      title_key: 'تابعنا على تويتر',
-      description_key: 'تابع حسابنا الرسمي على تويتر واحصل على مكافأة',
+      title_key: 'Follow on Twitter',
+      description_key: 'Follow our official Twitter account and get rewarded',
       task_type: 'twitter',
       reward_amount: 0.005,
       action_url: 'https://twitter.com/spacecoin',
@@ -40,18 +39,26 @@ const TasksPage = () => {
     },
     {
       id: '3',
-      title_key: 'دعوة 5 أصدقاء',
-      description_key: 'ادع 5 أصدقاء للانضمام إلى التطبيق',
+      title_key: 'Invite 5 Friends',
+      description_key: 'Invite 5 friends to join the application',
       task_type: 'referral',
       reward_amount: 0.025,
       completed: false
     },
     {
       id: '4',
-      title_key: 'مهمة يومية - تسجيل الدخول',
-      description_key: 'سجل دخولك يومياً للحصول على مكافأة',
+      title_key: 'Daily Login',
+      description_key: 'Login daily to receive your reward',
       task_type: 'daily',
       reward_amount: 0.002,
+      completed: false
+    },
+    {
+      id: '5',
+      title_key: 'Invite 20 Friends',
+      description_key: 'Invite 20 friends to earn a massive 0.5 TON reward',
+      task_type: 'referral',
+      reward_amount: 0.5,
       completed: false
     }
   ]);
@@ -71,6 +78,16 @@ const TasksPage = () => {
     try {
       const task = tasks.find(t => t.id === taskId);
       if (task && !task.completed) {
+        // Don't complete the "Invite 20 Friends" task
+        if (task.id === '5') {
+          toast({
+            title: "Task in Progress",
+            description: "Keep inviting more friends to complete this task!",
+            variant: "destructive",
+          });
+          return;
+        }
+
         setTasks(prevTasks => 
           prevTasks.map(t => 
             t.id === taskId ? { ...t, completed: true } : t
@@ -78,15 +95,15 @@ const TasksPage = () => {
         );
 
         toast({
-          title: "مهمة مكتملة!",
-          description: `تم حصولك على ${task.reward_amount} TON`,
+          title: "Task Completed!",
+          description: `You earned ${task.reward_amount} TON`,
         });
       }
     } catch (error) {
       console.error('Error completing task:', error);
       toast({
-        title: "خطأ في إكمال المهمة",
-        description: "فشل في إكمال المهمة. حاول مرة أخرى.",
+        title: "Error completing task",
+        description: "Failed to complete task. Please try again.",
         variant: "destructive",
       });
     }
@@ -112,7 +129,6 @@ const TasksPage = () => {
       });
     }
     
-    // Reset count after 3 seconds if not reached 5
     setTimeout(() => {
       if (titleClickCount < 5) {
         setTitleClickCount(0);
@@ -198,9 +214,9 @@ const TasksPage = () => {
             className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent mb-3 cursor-pointer"
             onClick={handleTitleClick}
           >
-            المهام
+            Tasks
           </h1>
-          <p className="text-gray-300 text-base leading-relaxed">أكمل المهام واحصل على مكافآت TON</p>
+          <p className="text-gray-300 text-base leading-relaxed">Complete tasks and earn TON rewards</p>
         </div>
 
         {/* Stats Cards */}
@@ -208,14 +224,14 @@ const TasksPage = () => {
           <Card className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 backdrop-blur-xl border-2 border-green-500/40 rounded-2xl">
             <CardContent className="p-4 text-center">
               <p className="text-green-400 text-2xl font-bold">{completedTasksCount}</p>
-              <p className="text-green-300 text-sm">مهام مكتملة</p>
+              <p className="text-green-300 text-sm">Completed</p>
             </CardContent>
           </Card>
           
           <Card className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border-2 border-yellow-500/40 rounded-2xl">
             <CardContent className="p-4 text-center">
               <p className="text-yellow-400 text-2xl font-bold">{totalRewards.toFixed(4)}</p>
-              <p className="text-yellow-300 text-sm">TON مكتسب</p>
+              <p className="text-yellow-300 text-sm">TON Earned</p>
             </CardContent>
           </Card>
         </div>
@@ -230,7 +246,7 @@ const TasksPage = () => {
             className="bg-purple-500/20 border-purple-500/50 text-purple-200 hover:bg-purple-500/30"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            تحديث المهام
+            Refresh Tasks
           </Button>
         </div>
 
@@ -239,11 +255,11 @@ const TasksPage = () => {
           {isLoading ? (
             <div className="text-center text-gray-400 py-8">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
-              <p>جاري تحميل المهام...</p>
+              <p>Loading tasks...</p>
             </div>
           ) : tasks.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
-              <p>لا توجد مهام متاحة</p>
+              <p>No tasks available</p>
             </div>
           ) : (
             tasks.map(task => (
@@ -292,7 +308,7 @@ const TasksPage = () => {
                       size="sm"
                       className="w-full mb-3 bg-blue-500/20 border-blue-500/50 text-blue-200 hover:bg-blue-500/30"
                     >
-                      افتح الرابط
+                      Open Link
                     </Button>
                   )}
                   <Button
@@ -307,10 +323,10 @@ const TasksPage = () => {
                     {task.completed ? (
                       <>
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        مكتملة
+                        Completed
                       </>
                     ) : (
-                      'إكمال المهمة'
+                      'Complete Task'
                     )}
                   </Button>
                 </CardContent>
