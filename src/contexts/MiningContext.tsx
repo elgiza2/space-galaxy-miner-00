@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -69,8 +68,8 @@ export const MiningProvider: React.FC<MiningProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Error updating mining earnings:', error);
       toast({
-        title: "خطأ",
-        description: "فشل في حفظ أرباح التعدين",
+        title: "Error",
+        description: "Failed to save mining earnings",
         variant: "destructive",
       });
     }
@@ -87,14 +86,15 @@ export const MiningProvider: React.FC<MiningProviderProps> = ({ children }) => {
       localStorage.setItem('mining_profile', JSON.stringify(updatedProfile));
       
       toast({
-        title: "مكافأة المهمة!",
-        description: `تم إضافة ${reward} TON إلى رصيدك`,
+        title: "🎉 Task Reward!",
+        description: `+${reward.toFixed(3)} TON earned`,
+        className: "bg-gradient-to-r from-green-500/90 to-emerald-500/90 border-green-400/50 text-white backdrop-blur-xl",
       });
     } catch (error) {
       console.error('Error adding task reward:', error);
       toast({
-        title: "خطأ",
-        description: "فشل في إضافة مكافأة المهمة",
+        title: "Error",
+        description: "Failed to add task reward",
         variant: "destructive",
       });
     }
