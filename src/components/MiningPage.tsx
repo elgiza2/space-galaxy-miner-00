@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { UPGRADE_OPTIONS, formatTON, type UpgradeOption } from '../utils/ton';
+import { UPGRADE_OPTIONS, formatTON, sendTONPayment, createTonConnector, type UpgradeOption } from '../utils/ton';
 import { hapticFeedback } from '../utils/telegram';
+import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Zap, Coins, TrendingUp, Users, Gift, ArrowDownToLine, Pickaxe, Star } from 'lucide-react';
 
 const MINING_PHRASES = [
@@ -20,10 +21,11 @@ const MINING_PHRASES = [
 
 const MiningPage: React.FC = () => {
   const { toast } = useToast();
+  const [tonConnectUI] = useTonConnectUI();
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [miningActive, setMiningActive] = useState(true);
   const [tonBalance, setTonBalance] = useState(0.15);
-  const [miningSpeed, setMiningSpeed] = useState(0.05); // Changed from 1 to 0.05
+  const [miningSpeed, setMiningSpeed] = useState(0.05); // 0.05 per day
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(true);
   const [friendsInvited, setFriendsInvited] = useState(1);
@@ -37,7 +39,7 @@ const MiningPage: React.FC = () => {
     const firstVisit = localStorage.getItem('toner-first-visit');
     if (!firstVisit) {
       setHasFreePackage(true);
-      setMiningSpeed(0.1); // Changed from 2 to 0.1 (2x of 0.05)
+      setMiningSpeed(0.1); // 2x of 0.05
       setMiningActive(true);
       localStorage.setItem('toner-first-visit', 'true');
       toast({
@@ -55,11 +57,12 @@ const MiningPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Mining logic - always active
+  // Mining logic - per second (0.000001 TON base rate)
   useEffect(() => {
     const interval = setInterval(() => {
       if (isWalletConnected) {
-        const earnings = (miningSpeed / 86400) * 0.001; // Adjusted for daily rate
+        const baseRate = 0.000001; // Base rate per second
+        const earnings = baseRate * miningSpeed; // Apply multiplier
         setMiningEarnings(prev => prev + earnings);
         setTotalMined(prev => prev + earnings);
       }
@@ -74,7 +77,7 @@ const MiningPage: React.FC = () => {
       hapticFeedback('success');
       toast({
         title: "🎉 TON Claimed!",
-        description: `You earned ${miningEarnings.toFixed(4)} TON`,
+        description: `You earned ${miningEarnings.toFixed(6)} TON`,
       });
     }
   };
@@ -84,20 +87,44 @@ const MiningPage: React.FC = () => {
     hapticFeedback('light');
   };
 
-  const handlePurchaseUpgrade = (upgrade: UpgradeOption) => {
-    if (tonBalance >= upgrade.price) {
-      setTonBalance(prev => prev - upgrade.price);
+  const handlePurchaseUpgrade = async (upgrade: UpgradeOption) => {
+    if (!tonConnectUI.wallet) {
+      toast({
+        title: "⚠️ Wallet Not Connected",
+        description: "Please connect your wallet to purchase upgrades",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log('Sending TON payment for upgrade:', upgrade);
+      
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          {
+            address: 'UQAqPFXgVhDpXe-WbJgfwVd_ETkmPMqEjLaNKLtDTKxVAJgk',
+            amount: (upgrade.price * 1e9).toString(),
+          },
+        ],
+      };
+
+      await tonConnectUI.sendTransaction(transaction);
+      
       setMiningSpeed(upgrade.multiplier);
       setShowUpgradeModal(false);
       hapticFeedback('success');
+      
       toast({
         title: "✅ Upgrade Successful!",
-        description: `Mining speed is now ${upgrade.multiplier}x`,
+        description: `Mining speed is now ${upgrade.multiplier}x faster`,
       });
-    } else {
+    } catch (error) {
+      console.error('TON payment failed:', error);
       toast({
-        title: "⚠️ Insufficient Balance",
-        description: "You need more TON for this upgrade",
+        title: "❌ Payment Failed",
+        description: "Transaction was cancelled or failed",
         variant: "destructive",
       });
     }
@@ -184,23 +211,33 @@ const MiningPage: React.FC = () => {
               TON Balance
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-center relative z-10 pt-0 pb-4">
+          <CardContent className="text-center relative z-10 pt-0 pb-2">
             <motion.div 
               key={tonBalance} 
               initial={{ scale: 1.1, color: '#3b82f6' }} 
               animate={{ scale: 1, color: '#ffffff' }} 
               className="text-2xl font-bold mb-2"
             >
-              {tonBalance.toFixed(4)} <span className="text-blue-400">TON</span>
+              {tonBalance.toFixed(6)} <span className="text-blue-400">TON</span>
             </motion.div>
             {miningEarnings > 0 && (
-              <div className="text-green-400 text-xs font-semibold">
-                +{miningEarnings.toFixed(4)} TON ready to claim
+              <div className="text-green-400 text-xs font-semibold mb-2">
+                +{miningEarnings.toFixed(6)} TON ready to claim
               </div>
             )}
-            <div className="text-gray-300 text-xs mt-1">
-              Total mined: {totalMined.toFixed(4)} TON
+            <div className="text-gray-300 text-xs mb-3">
+              Total mined: {totalMined.toFixed(6)} TON
             </div>
+            
+            {/* Smaller Claim Button positioned below balance */}
+            <Button 
+              onClick={handleClaim} 
+              disabled={miningEarnings <= 0}
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-8 text-xs font-bold rounded-lg disabled:opacity-50" 
+            >
+              <Gift className="w-3 h-3 mr-1" />
+              Claim ({miningEarnings.toFixed(6)} TON)
+            </Button>
           </CardContent>
         </Card>
 
@@ -231,16 +268,6 @@ const MiningPage: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="space-y-3 w-full max-w-sm">
-        {/* Claim Button */}
-        <Button 
-          onClick={handleClaim} 
-          disabled={miningEarnings <= 0}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-12 text-base font-bold rounded-xl disabled:opacity-50 shadow-lg" 
-        >
-          <Gift className="w-5 h-5 mr-2" />
-          Claim Rewards ({miningEarnings.toFixed(4)} TON)
-        </Button>
-
         {/* Upgrade Button */}
         <Button 
           onClick={handleUpgradeClick} 
@@ -262,7 +289,7 @@ const MiningPage: React.FC = () => {
           }`}
         >
           <ArrowDownToLine className="w-4 h-4 mr-2" />
-          {tonBalance < 1 ? `Withdraw (${tonBalance.toFixed(4)}/1.0 TON)` : 
+          {tonBalance < 1 ? `Withdraw (${tonBalance.toFixed(6)}/1.0 TON)` : 
            !hasDeposited ? 'Withdraw (Deposit 0.1 TON)' : 'Withdraw TON'}
         </Button>
       </div>
@@ -290,7 +317,7 @@ const MiningPage: React.FC = () => {
             <DialogTitle className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-1">
               ⚡ Upgrade Mining
             </DialogTitle>
-            <p className="text-gray-300 text-xs">Choose your package</p>
+            <p className="text-gray-300 text-xs">Pay with TON to upgrade</p>
           </DialogHeader>
           
           <div className="space-y-2">
@@ -298,8 +325,7 @@ const MiningPage: React.FC = () => {
               <motion.div key={upgrade.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button 
                   onClick={() => handlePurchaseUpgrade(upgrade)} 
-                  disabled={tonBalance < upgrade.price}
-                  className="w-full p-3 h-auto flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border border-blue-500/30 rounded-lg disabled:opacity-50" 
+                  className="w-full p-3 h-auto flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-cyan-500/10 hover:from-blue-500/20 hover:to-cyan-500/20 border border-blue-500/30 rounded-lg" 
                   variant="ghost"
                 >
                   <div className="text-left">
@@ -312,6 +338,7 @@ const MiningPage: React.FC = () => {
                     <div className="font-bold text-blue-400 text-sm">
                       {formatTON(upgrade.price)}
                     </div>
+                    <div className="text-xs text-gray-400">Real TON</div>
                   </div>
                 </Button>
               </motion.div>
