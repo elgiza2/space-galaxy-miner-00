@@ -5,21 +5,27 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTasks } from '@/contexts/TasksContext';
+import { useMining } from '@/contexts/MiningContext';
 
 const TasksPage = () => {
   const { toast } = useToast();
   const { tasks, completedTaskIds, isLoading, refreshTasks, completeTask } = useTasks();
+  const { addTaskReward } = useMining();
   const [titleClickCount, setTitleClickCount] = useState(0);
 
   const handleCompleteTask = async (taskId: string) => {
     try {
-      await completeTask(taskId);
       const task = tasks.find(t => t.id === taskId);
-      if (task && !completedTaskIds.includes(taskId)) {
-        toast({
-          title: "Task Completed!",
-          description: `You earned 0.05 TON`,
-        });
+      if (!task) return;
+
+      const wasCompleted = completedTaskIds.includes(taskId);
+      await completeTask(taskId);
+      
+      // إذا كانت المهمة جديدة (لم تكن مكتملة من قبل)، أضف المكافأة
+      if (!wasCompleted) {
+        // تحويل المكافأة من النقاط إلى TON (100 نقطة = 0.05 TON)
+        const tonReward = task.reward / 2000; // 100 نقطة = 0.05 TON
+        await addTaskReward(tonReward);
       }
     } catch (error) {
       console.error('Error completing task:', error);
@@ -58,6 +64,7 @@ const TasksPage = () => {
 
   const visibleTasks = tasks.filter(task => !completedTaskIds.includes(task.id));
   const completedTasksCount = completedTaskIds.length;
+  const totalTonEarned = completedTasksCount * 0.05; // كل مهمة = 0.05 TON
 
   return (
     <div className="min-h-screen p-3 pb-24">
@@ -82,7 +89,7 @@ const TasksPage = () => {
           
           <div className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border border-yellow-500/40 rounded-xl p-3 text-center">
             <p className="text-yellow-400 text-xl font-bold">
-              {completedTasksCount * 0.05} TON
+              {totalTonEarned.toFixed(2)} TON
             </p>
             <p className="text-yellow-300 text-xs">Earned</p>
           </div>
@@ -113,6 +120,7 @@ const TasksPage = () => {
           ) : (
             visibleTasks.map(task => {
               const isCompleted = completedTaskIds.includes(task.id);
+              const tonReward = task.reward / 2000; // تحويل النقاط إلى TON
               return (
                 <Card 
                   key={task.id} 
@@ -125,7 +133,7 @@ const TasksPage = () => {
                         <h3 className="text-white text-sm font-medium">{task.title}</h3>
                       </div>
                       <div className="text-right">
-                        <p className="text-yellow-400 font-bold text-sm">0.05 TON</p>
+                        <p className="text-yellow-400 font-bold text-sm">{tonReward.toFixed(2)} TON</p>
                       </div>
                     </div>
                     

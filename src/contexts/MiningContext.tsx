@@ -13,6 +13,7 @@ interface MiningContextType {
   profile: Profile | null;
   isLoading: boolean;
   updateMiningEarnings: (earnings: number, totalMined: number) => Promise<void>;
+  addTaskReward: (reward: number) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -75,6 +76,30 @@ export const MiningProvider: React.FC<MiningProviderProps> = ({ children }) => {
     }
   };
 
+  const addTaskReward = async (reward: number) => {
+    try {
+      const updatedProfile = {
+        ...profile!,
+        ton_balance: profile!.ton_balance + reward
+      };
+      setProfile(updatedProfile);
+      // Save to localStorage
+      localStorage.setItem('mining_profile', JSON.stringify(updatedProfile));
+      
+      toast({
+        title: "مكافأة المهمة!",
+        description: `تم إضافة ${reward} TON إلى رصيدك`,
+      });
+    } catch (error) {
+      console.error('Error adding task reward:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في إضافة مكافأة المهمة",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     refreshProfile();
   }, []);
@@ -83,6 +108,7 @@ export const MiningProvider: React.FC<MiningProviderProps> = ({ children }) => {
     profile,
     isLoading,
     updateMiningEarnings,
+    addTaskReward,
     refreshProfile
   };
 
