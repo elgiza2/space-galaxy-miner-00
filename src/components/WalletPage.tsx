@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Wallet, RefreshCw, LogIn, LogOut, Coins, TrendingUp } from 'lucide-react';
+import { Wallet, RefreshCw, LogIn, LogOut, TrendingUp } from 'lucide-react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { tonService, type TONTransaction } from '../services/tonService';
 
@@ -84,9 +84,11 @@ const WalletPage = () => {
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-4">
             <div className="w-20 h-20 rounded-full flex items-center justify-center">
-              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
-                <Coins className="w-10 h-10 text-white" />
-              </div>
+              <img 
+                src="/lovable-uploads/56e51793-4912-4a28-9c5b-611c28fb68d6.png" 
+                alt="TON Logo" 
+                className="w-16 h-16 rounded-full"
+              />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">TON Wallet</h1>

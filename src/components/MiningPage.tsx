@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { UPGRADE_OPTIONS, formatTON, sendTONPayment, createTonConnector, type UpgradeOption } from '../utils/ton';
 import { hapticFeedback } from '../utils/telegram';
 import { useTonConnectUI } from '@tonconnect/ui-react';
-import { Zap, Coins, TrendingUp, Users, Gift, ArrowDownToLine, Pickaxe, Star } from 'lucide-react';
+import { Zap, TrendingUp, Users, Gift, ArrowDownToLine, Pickaxe, Star } from 'lucide-react';
 
 const MINING_PHRASES = [
   'Start mining TON easily',
@@ -132,7 +132,11 @@ const MiningPage: React.FC = () => {
             animate={{ rotate: 360 }}
             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
           >
-            <Coins className="w-6 h-6 text-white" />
+            <img 
+              src="/lovable-uploads/56e51793-4912-4a28-9c5b-611c28fb68d6.png" 
+              alt="TON Logo" 
+              className="w-8 h-8 rounded-full"
+            />
           </motion.div>
           <div className="text-left">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent">
@@ -166,7 +170,11 @@ const MiningPage: React.FC = () => {
           <CardHeader className="pb-2 relative z-10">
             <CardTitle className="text-white text-center flex items-center justify-center gap-2 text-lg">
               <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                <Coins className="w-4 h-4 text-white" />
+                <img 
+                  src="/lovable-uploads/56e51793-4912-4a28-9c5b-611c28fb68d6.png" 
+                  alt="TON Logo" 
+                  className="w-4 h-4 rounded-full"
+                />
               </div>
               TON Balance
             </CardTitle>
