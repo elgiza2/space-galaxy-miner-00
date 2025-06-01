@@ -1,23 +1,20 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { tasksService } from '@/services/tasksService';
+import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
 
-export interface Task {
-  id: string;
-  title_key: string;
-  description_key: string;
-  task_type: string;
-  reward_amount: number;
-  action_url?: string;
-  completed: boolean;
-}
+type Task = Database['public']['Tables']['tasks']['Row'];
 
 interface TasksContextType {
   tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  addTask: (task: Omit<Task, 'id' | 'completed'>) => void;
-  updateTask: (id: string, updates: Partial<Task>) => void;
-  deleteTask: (id: string) => void;
-  completeTask: (id: string) => void;
+  completedTaskIds: string[];
+  isLoading: boolean;
+  refreshTasks: () => Promise<void>;
+  addTask: (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
+  completeTask: (id: string) => Promise<void>;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -35,79 +32,118 @@ interface TasksProviderProps {
 }
 
 export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: '1',
-      title_key: 'Join Telegram Channel',
-      description_key: 'Join our official Telegram channel to get the latest updates',
-      task_type: 'telegram',
-      reward_amount: 0.01,
-      action_url: 'https://t.me/spacecoin',
-      completed: false
-    },
-    {
-      id: '2',
-      title_key: 'Follow on Twitter',
-      description_key: 'Follow our official Twitter account and get rewarded',
-      task_type: 'twitter',
-      reward_amount: 0.005,
-      action_url: 'https://twitter.com/spacecoin',
-      completed: false
-    },
-    {
-      id: '3',
-      title_key: 'Invite 5 Friends',
-      description_key: 'Invite 5 friends to join the application',
-      task_type: 'referral',
-      reward_amount: 0.025,
-      completed: false
-    },
-    {
-      id: '4',
-      title_key: 'Daily Login',
-      description_key: 'Login daily to receive your reward',
-      task_type: 'daily',
-      reward_amount: 0.002,
-      completed: false
-    },
-    {
-      id: '5',
-      title_key: 'Invite 20 Friends',
-      description_key: 'Invite 20 friends to earn a massive 0.5 TON reward',
-      task_type: 'referral',
-      reward_amount: 0.5,
-      completed: false
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  const refreshTasks = async () => {
+    try {
+      setIsLoading(true);
+      const [tasksData, completedIds] = await Promise.all([
+        tasksService.getAllTasks(),
+        tasksService.getUserCompletedTasks()
+      ]);
+      setTasks(tasksData);
+      setCompletedTaskIds(completedIds);
+    } catch (error) {
+      console.error('Error refreshing tasks:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في جلب المهام",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  ]);
-
-  const addTask = (taskData: Omit<Task, 'id' | 'completed'>) => {
-    const newTask: Task = {
-      ...taskData,
-      id: Date.now().toString(),
-      completed: false
-    };
-    setTasks(prev => [...prev, newTask]);
   };
 
-  const updateTask = (id: string, updates: Partial<Task>) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, ...updates } : task
-    ));
+  const addTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const newTask = await tasksService.addTask(taskData);
+      setTasks(prev => [...prev, newTask]);
+      toast({
+        title: "تم بنجاح",
+        description: "تم إضافة المهمة بنجاح",
+      });
+    } catch (error) {
+      console.error('Error adding task:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في إضافة المهمة",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
+  const updateTask = async (id: string, updates: Partial<Task>) => {
+    try {
+      const updatedTask = await tasksService.updateTask(id, updates);
+      setTasks(prev => prev.map(task => task.id === id ? updatedTask : task));
+      toast({
+        title: "تم بنجاح",
+        description: "تم تحديث المهمة بنجاح",
+      });
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في تحديث المهمة",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
-  const completeTask = (id: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, completed: true } : task
-    ));
+  const deleteTask = async (id: string) => {
+    try {
+      await tasksService.deleteTask(id);
+      setTasks(prev => prev.filter(task => task.id !== id));
+      toast({
+        title: "تم بنجاح",
+        description: "تم حذف المهمة بنجاح",
+      });
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف المهمة",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
+
+  const completeTask = async (id: string) => {
+    try {
+      if (completedTaskIds.includes(id)) {
+        await tasksService.uncompleteTask(id);
+        setCompletedTaskIds(prev => prev.filter(taskId => taskId !== id));
+      } else {
+        await tasksService.completeTask(id);
+        setCompletedTaskIds(prev => [...prev, id]);
+      }
+    } catch (error) {
+      console.error('Error completing/uncompleting task:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل في تحديث حالة المهمة",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    refreshTasks();
+  }, []);
 
   const value: TasksContextType = {
     tasks,
-    setTasks,
+    completedTaskIds,
+    isLoading,
+    refreshTasks,
     addTask,
     updateTask,
     deleteTask,
