@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Wallet, Send, ArrowDownToLine, ArrowUpFromLine, Eye, EyeOff, Copy, ExternalLink, TrendingUp, RefreshCw, LogIn, LogOut, Settings, Plus } from 'lucide-react';
+import { Wallet, Send, ArrowDownToLine, Copy, RefreshCw, LogIn, LogOut, Coins, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { tonService, type TONTransaction } from '../services/tonService';
@@ -27,22 +28,18 @@ const WalletPage = () => {
   
   const fallbackAddress = "UQAqPFXgVhDpXe-WbJgfwVd_ETkmPMqEjLaNKLtDTKxVAJgk";
   
-  // Get translation function for current language
   const t = (key: string) => getTranslation(key, currentLanguage.code);
 
   useEffect(() => {
     checkWalletConnection();
-    // Always load fallback data to show content
     loadWalletData(fallbackAddress);
     
     const unsubscribe = tonConnectUI.onStatusChange(wallet => {
-      console.log('TON Connect UI wallet status changed:', wallet);
       if (wallet) {
         setConnectedAddress(wallet.account.address);
         loadWalletData(wallet.account.address);
       } else {
         setConnectedAddress(null);
-        // Keep showing transactions even when disconnected
         loadWalletData(fallbackAddress);
       }
     });
@@ -53,7 +50,6 @@ const WalletPage = () => {
 
   const checkWalletConnection = () => {
     const wallet = tonConnectUI.wallet;
-    console.log('Current TON Connect UI wallet:', wallet);
     if (wallet) {
       const address = wallet.account.address;
       setConnectedAddress(address);
@@ -64,17 +60,15 @@ const WalletPage = () => {
   const connectWallet = async () => {
     setIsConnecting(true);
     try {
-      console.log('Attempting to connect TON wallet via UI...');
       await tonConnectUI.openModal();
       toast({
-        title: t('openConnectionWindow'),
-        description: t('pleaseSelectWallet')
+        title: "فتح نافذة الاتصال",
+        description: "يرجى اختيار محفظتك"
       });
     } catch (error) {
-      console.error('Error opening TON Connect modal:', error);
       toast({
-        title: t('connectionError'),
-        description: t('failedToOpenWallet'),
+        title: "خطأ في الاتصال",
+        description: "فشل في فتح المحفظة",
         variant: "destructive"
       });
     } finally {
@@ -86,11 +80,10 @@ const WalletPage = () => {
     try {
       await tonConnectUI.disconnect();
       setConnectedAddress(null);
-      // Keep showing fallback data after disconnect
       loadWalletData(fallbackAddress);
       toast({
-        title: t('disconnected'),
-        description: t('tonWalletDisconnected')
+        title: "تم قطع الاتصال",
+        description: "تم قطع الاتصال بمحفظة TON"
       });
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
@@ -100,17 +93,14 @@ const WalletPage = () => {
   const loadWalletData = async (address: string) => {
     setIsLoading(true);
     try {
-      console.log('Loading TON wallet data for address:', address);
       const balanceData = await tonService.getBalance(address);
       setTonBalance(parseFloat(balanceData.balance));
       const txData = await tonService.getTransactions(address, 6);
       setTransactions(txData);
-      console.log('TON data loaded:', { balance: balanceData, transactions: txData });
     } catch (error) {
-      console.error('Error loading wallet data:', error);
       toast({
-        title: t('loadingDataError'),
-        description: t('failedToLoadWallet'),
+        title: "خطأ في تحميل البيانات",
+        description: "فشل في تحميل بيانات المحفظة",
         variant: "destructive"
       });
     } finally {
@@ -121,116 +111,69 @@ const WalletPage = () => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: t('copied'),
-      description: t('walletAddressCopied')
+      title: "تم النسخ",
+      description: "تم نسخ عنوان المحفظة"
     });
-  };
-
-  const openTxExplorer = (hash: string) => {
-    if (hash.startsWith('fallback_')) return;
-    window.open(`https://tonscan.org/tx/${hash}`, '_blank');
   };
 
   const currentAddress = connectedAddress || fallbackAddress;
   const isWalletConnected = !!tonConnectUI.wallet;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 p-4 pb-24">
+    <div className="min-h-screen bg-black p-4 pb-24">
       <div className="max-w-md mx-auto space-y-6">
         {/* Enhanced Header */}
         <div className="text-center mb-8 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl"></div>
-          <div className="relative">
-            {/* Language Switcher */}
-            <div className="absolute top-0 right-0">
-              <LanguageSwitcher onLanguageChange={() => setCurrentLanguage(getStoredLanguage())} />
-            </div>
-            
-            <div className="flex items-center justify-center mb-4">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full shadow-2xl animate-pulse-glow">
-                <Wallet className="w-8 h-8 text-white" />
-              </div>
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
-              {t('smartWallet')}
-            </h1>
-            <p className="text-gray-300 text-base leading-relaxed">{t('walletDescription')}</p>
+          <div className="absolute top-0 right-0">
+            <LanguageSwitcher onLanguageChange={() => setCurrentLanguage(getStoredLanguage())} />
           </div>
+          
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center glow-blue">
+              <Wallet className="w-10 h-10 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent mb-3">
+            محفظة TON الذكية
+          </h1>
+          <p className="text-gray-300 text-base">إدارة عملاتك الرقمية بأمان</p>
         </div>
 
         {/* Wallet Connection Status */}
-        <Card className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 backdrop-blur-xl border-2 border-green-500/40 rounded-3xl overflow-hidden">
-          <CardContent className="p-6 py-[10px] px-[76px] bg-pink-600">
+        <Card className="wallet-card">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {/* Content removed for space */}
+                <div className={`w-3 h-3 rounded-full ${isWalletConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className="text-white font-medium">
+                  {isWalletConnected ? 'متصل' : 'غير متصل'}
+                </span>
               </div>
-              <div className="flex gap-2">
-                {isWalletConnected ? (
-                  <Button 
-                    onClick={disconnectWallet} 
-                    variant="outline" 
-                    size="sm" 
-                    className="bg-red-500/20 border-red-500/50 text-red-200 hover:bg-red-500/30"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    {t('disconnectWallet')}
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={connectWallet} 
-                    disabled={isConnecting} 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-green-500/50 text-green-200 my-0 mx-[24px] bg-pink-600 hover:bg-pink-500"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    {isConnecting ? t('connecting') : t('connectWallet')}
-                  </Button>
-                )}
-              </div>
+              <Button 
+                onClick={isWalletConnected ? disconnectWallet : connectWallet} 
+                disabled={isConnecting} 
+                variant="outline" 
+                size="sm" 
+                className={`${isWalletConnected ? 'bg-red-500/20 border-red-500/50 text-red-200' : 'bg-green-500/20 border-green-500/50 text-green-200'}`}
+              >
+                {isWalletConnected ? <LogOut className="w-4 h-4 mr-2" /> : <LogIn className="w-4 h-4 mr-2" />}
+                {isConnecting ? 'جاري الاتصال...' : (isWalletConnected ? 'قطع الاتصال' : 'ربط المحفظة')}
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Enhanced Balance Cards */}
+        {/* Balance Cards */}
         <div className="space-y-4">
-          {/* $SPACE Balance */}
-          <Card className="bg-gradient-to-br from-blue-500/15 to-purple-500/15 backdrop-blur-xl border-2 border-blue-500/40 rounded-3xl overflow-hidden relative group hover:scale-[1.02] transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10"></div>
-            <CardHeader className="pb-3 relative">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white flex items-center gap-3 text-xl">
-                  <div>
-                    <span className="block">$SPACE</span>
-                    <span className="text-sm text-blue-300 font-normal">{t('mainCurrency')}</span>
-                  </div>
-                </CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowBalance(!showBalance)} 
-                  className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-10 w-10 p-0 rounded-xl"
-                >
-                  {showBalance ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 relative my-0">
-              <p className="font-bold text-white mb-3 text-2xl">
-                {showBalance ? spaceBalance.toLocaleString() : '••••••'}
-              </p>
-            </CardContent>
-          </Card>
-
           {/* TON Balance */}
-          <Card className="bg-gradient-to-br from-purple-500/15 to-pink-500/15 backdrop-blur-xl border-2 border-purple-500/40 rounded-3xl overflow-hidden relative group hover:scale-[1.02] transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10"></div>
-            <CardHeader className="pb-3 relative">
+          <Card className="mining-card">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-white flex items-center gap-3 text-xl">
+                  <Coins className="w-6 h-6 text-blue-400" />
                   <div>
                     <span className="block">TON</span>
+                    <span className="text-sm text-blue-300 font-normal">عملة TON</span>
                   </div>
                 </CardTitle>
                 <Button 
@@ -238,15 +181,37 @@ const WalletPage = () => {
                   size="sm" 
                   onClick={() => loadWalletData(currentAddress)} 
                   disabled={isLoading} 
-                  className="text-purple-300 hover:text-white hover:bg-purple-500/20 h-10 w-10 p-0 rounded-xl"
+                  className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-10 w-10 p-0 rounded-xl"
                 >
                   <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="pt-0 relative rounded-full">
+            <CardContent className="pt-0">
+              <p className="font-bold text-white mb-3 text-3xl">
+                {tonBalance.toFixed(4)}
+              </p>
+              <div className="flex items-center gap-2 text-green-400">
+                <TrendingUp className="w-4 h-4" />
+                <span className="text-sm">+2.5% اليوم</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* $SPACE Balance */}
+          <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 backdrop-blur-xl border border-purple-500/30 rounded-3xl">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white flex items-center gap-3 text-xl">
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <div>
+                  <span className="block">$SPACE</span>
+                  <span className="text-sm text-purple-300 font-normal">عملة المنصة</span>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
               <p className="font-bold text-white mb-3 text-2xl">
-                {showBalance ? tonBalance.toFixed(4) : '••••'}
+                {spaceBalance.toLocaleString()}
               </p>
             </CardContent>
           </Card>
@@ -259,23 +224,23 @@ const WalletPage = () => {
             className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 h-14 text-base font-semibold rounded-2xl"
           >
             <Send className="w-5 h-5 mr-2" />
-            {t('send')}
+            إرسال
           </Button>
           <Button
             onClick={() => setShowReceiveModal(true)}
             className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-14 text-base font-semibold rounded-2xl"
           >
             <ArrowDownToLine className="w-5 h-5 mr-2" />
-            {t('receive')}
+            استقبال
           </Button>
         </div>
 
-        {/* Wallet Address Display */}
-        <Card className="bg-gradient-to-br from-gray-500/10 to-slate-500/10 backdrop-blur-xl border border-gray-500/30 rounded-3xl overflow-hidden">
+        {/* Wallet Address */}
+        <Card className="bg-gradient-to-br from-gray-800/40 to-slate-800/40 backdrop-blur-xl border border-gray-500/30 rounded-2xl">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0 mr-3">
-                <p className="text-sm text-gray-400 mb-1">Wallet Address</p>
+                <p className="text-sm text-gray-400 mb-1">عنوان المحفظة</p>
                 <code className="text-xs text-gray-200 break-all font-mono leading-relaxed">
                   {currentAddress}
                 </code>
@@ -292,19 +257,17 @@ const WalletPage = () => {
           </CardContent>
         </Card>
 
-        {/* Enhanced Transaction History */}
-        <Card className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-xl border border-indigo-500/30 rounded-3xl overflow-hidden">
+        {/* Transaction History */}
+        <Card className="mining-card">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-white text-xl flex items-center gap-3">
-                {t('latestTransactions')}
-              </CardTitle>
+              <CardTitle className="text-white text-xl">آخر المعاملات</CardTitle>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => loadWalletData(currentAddress)} 
                 disabled={isLoading} 
-                className="text-indigo-300 hover:text-white hover:bg-indigo-500/20 h-10 w-10 p-0 rounded-xl"
+                className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-10 w-10 p-0 rounded-xl"
               >
                 <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
@@ -314,22 +277,20 @@ const WalletPage = () => {
             {isLoading ? (
               <div className="text-center text-gray-400 py-8">
                 <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
-                <p>{t('loadingTransactions')}</p>
+                <p>جاري تحميل المعاملات...</p>
               </div>
             ) : transactions.length === 0 ? (
               <div className="text-center text-gray-400 py-8">
-                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Wallet className="w-8 h-8" />
-                </div>
-                <p className="text-lg font-semibold mb-2">{t('noTransactions')}</p>
-                <p className="text-sm">{t('startSendingReceiving')}</p>
+                <Wallet className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-semibold mb-2">لا توجد معاملات</p>
+                <p className="text-sm">ابدأ بإرسال أو استقبال العملات</p>
               </div>
             ) : (
               transactions.map(tx => (
                 <TransactionItem 
                   key={tx.hash} 
                   transaction={tx} 
-                  onViewExplorer={openTxExplorer}
+                  onViewExplorer={() => {}}
                   language={currentLanguage.code}
                 />
               ))
