@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -195,6 +196,8 @@ const TasksPage = () => {
     }
   };
 
+  // Filter out completed tasks for regular users
+  const visibleTasks = showAdminPanel ? tasks : tasks.filter(task => !task.completed);
   const completedTasksCount = tasks.filter(t => t.completed).length;
   const totalRewards = tasks
     .filter(t => t.completed)
@@ -236,20 +239,6 @@ const TasksPage = () => {
           </Card>
         </div>
 
-        {/* Refresh Button */}
-        <div className="flex justify-center mb-4">
-          <Button
-            onClick={loadTasks}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="bg-purple-500/20 border-purple-500/50 text-purple-200 hover:bg-purple-500/30"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh Tasks
-          </Button>
-        </div>
-
         {/* Tasks List */}
         <div className="space-y-3">
           {isLoading ? (
@@ -257,12 +246,12 @@ const TasksPage = () => {
               <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
               <p>Loading tasks...</p>
             </div>
-          ) : tasks.length === 0 ? (
+          ) : visibleTasks.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
               <p>No tasks available</p>
             </div>
           ) : (
-            tasks.map(task => (
+            visibleTasks.map(task => (
               <Card 
                 key={task.id} 
                 className={`backdrop-blur-xl border-2 ${getTaskTypeColor(task.task_type)} ${
