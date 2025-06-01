@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Settings, Plus, Edit, Trash2, Save, X, RefreshCw } from 'lucide-react';
+import { Settings, Plus, Edit, Trash2, Save, X, RefreshCw, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTasks } from '@/contexts/TasksContext';
 import type { Database } from '@/integrations/supabase/types';
@@ -24,6 +24,7 @@ const TaskManagementPage = () => {
     reward: number;
     link: string;
     time_required: number;
+    ton_reward?: number;
   }>({
     title: '',
     arabic_title: '',
@@ -31,14 +32,15 @@ const TaskManagementPage = () => {
     arabic_description: '',
     reward: 0,
     link: '',
-    time_required: 5
+    time_required: 5,
+    ton_reward: 0
   });
 
   const handleAddTask = async () => {
-    if (!newTask.title || !newTask.arabic_title || !newTask.description || !newTask.arabic_description || newTask.reward <= 0) {
+    if (!newTask.title || !newTask.description || (newTask.reward <= 0 && (!newTask.ton_reward || newTask.ton_reward <= 0))) {
       toast({
-        title: "خطأ",
-        description: "يرجى ملء جميع الحقول المطلوبة",
+        title: "Error",
+        description: "Please fill all required fields and set a reward",
         variant: "destructive",
       });
       return;
@@ -47,9 +49,9 @@ const TaskManagementPage = () => {
     try {
       await addTask({
         title: newTask.title,
-        arabic_title: newTask.arabic_title,
+        arabic_title: newTask.title, // Use English title for Arabic as well
         description: newTask.description,
-        arabic_description: newTask.arabic_description,
+        arabic_description: newTask.description, // Use English description for Arabic as well
         reward: newTask.reward,
         link: newTask.link || null,
         time_required: newTask.time_required,
@@ -73,16 +75,17 @@ const TaskManagementPage = () => {
       arabic_description: task.arabic_description,
       reward: task.reward,
       link: task.link || '',
-      time_required: task.time_required
+      time_required: task.time_required,
+      ton_reward: 0
     });
     setShowAddModal(true);
   };
 
   const handleUpdateTask = async () => {
-    if (!editingTask || !newTask.title || !newTask.arabic_title || !newTask.description || !newTask.arabic_description || newTask.reward <= 0) {
+    if (!editingTask || !newTask.title || !newTask.description || (newTask.reward <= 0 && (!newTask.ton_reward || newTask.ton_reward <= 0))) {
       toast({
-        title: "خطأ",
-        description: "يرجى ملء جميع الحقول المطلوبة",
+        title: "Error",
+        description: "Please fill all required fields and set a reward",
         variant: "destructive",
       });
       return;
@@ -91,9 +94,9 @@ const TaskManagementPage = () => {
     try {
       await updateTask(editingTask.id, {
         title: newTask.title,
-        arabic_title: newTask.arabic_title,
+        arabic_title: newTask.title, // Use English title for Arabic as well
         description: newTask.description,
-        arabic_description: newTask.arabic_description,
+        arabic_description: newTask.description, // Use English description for Arabic as well
         reward: newTask.reward,
         link: newTask.link || null,
         time_required: newTask.time_required
@@ -123,7 +126,8 @@ const TaskManagementPage = () => {
       arabic_description: '',
       reward: 0,
       link: '',
-      time_required: 5
+      time_required: 5,
+      ton_reward: 0
     });
   };
 
@@ -253,50 +257,49 @@ const TaskManagementPage = () => {
         <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
           <DialogContent className="bg-gradient-to-br from-gray-900/95 to-slate-900/95 backdrop-blur-xl border border-gray-500/30 text-white max-w-md rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold">
-                {editingTask ? 'تعديل المهمة' : 'إضافة مهمة جديدة'}
+              <DialogTitle className="text-xl font-bold text-center">
+                {editingTask ? 'Edit Task' : 'Add New Task'}
               </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-4">
               <Input
-                placeholder="العنوان بالعربية"
-                value={newTask.arabic_title}
-                onChange={(e) => setNewTask(prev => ({ ...prev, arabic_title: e.target.value }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
-              
-              <Input
-                placeholder="العنوان بالإنجليزية"
+                placeholder="Task Title (English)"
                 value={newTask.title}
                 onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
                 className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
               />
               
               <Input
-                placeholder="الوصف بالعربية"
-                value={newTask.arabic_description}
-                onChange={(e) => setNewTask(prev => ({ ...prev, arabic_description: e.target.value }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
-              
-              <Input
-                placeholder="الوصف بالإنجليزية"
+                placeholder="Task Description (English)"
                 value={newTask.description}
                 onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
                 className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
               />
               
-              <Input
-                type="number"
-                placeholder="المكافأة (نقاط)"
-                value={newTask.reward}
-                onChange={(e) => setNewTask(prev => ({ ...prev, reward: parseInt(e.target.value) || 0 }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="number"
+                  placeholder="Points Reward"
+                  value={newTask.reward}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, reward: parseInt(e.target.value) || 0 }))}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                />
+                
+                <div className="relative">
+                  <Button
+                    onClick={() => setNewTask(prev => ({ ...prev, reward: 0, ton_reward: 0.05 }))}
+                    variant="outline"
+                    className="w-full bg-yellow-500/20 border-yellow-500/50 text-yellow-200 hover:bg-yellow-500/30"
+                  >
+                    <Coins className="w-4 h-4 mr-1" />
+                    0.05 TON
+                  </Button>
+                </div>
+              </div>
               
               <Input
-                placeholder="الرابط (اختياري)"
+                placeholder="Link (Optional)"
                 value={newTask.link}
                 onChange={(e) => setNewTask(prev => ({ ...prev, link: e.target.value }))}
                 className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -304,7 +307,7 @@ const TaskManagementPage = () => {
               
               <Input
                 type="number"
-                placeholder="الوقت المطلوب (بالدقائق)"
+                placeholder="Time Required (minutes)"
                 value={newTask.time_required}
                 onChange={(e) => setNewTask(prev => ({ ...prev, time_required: parseInt(e.target.value) || 5 }))}
                 className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -313,11 +316,11 @@ const TaskManagementPage = () => {
               <div className="flex gap-2">
                 <Button
                   onClick={editingTask ? handleUpdateTask : handleAddTask}
-                  disabled={!newTask.title || !newTask.arabic_title || !newTask.description || !newTask.arabic_description || newTask.reward <= 0}
+                  disabled={!newTask.title || !newTask.description || (newTask.reward <= 0 && (!newTask.ton_reward || newTask.ton_reward <= 0))}
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {editingTask ? 'تحديث' : 'إضافة'} المهمة
+                  {editingTask ? 'Update' : 'Add'} Task
                 </Button>
                 <Button
                   onClick={() => {
