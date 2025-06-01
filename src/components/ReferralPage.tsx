@@ -16,7 +16,7 @@ const ReferralPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 p-3 pb-24">
+    <div className="min-h-screen p-3 pb-24">
       <div className="max-w-sm mx-auto space-y-3">
         {/* Header */}
         <div className="text-center mb-4">
