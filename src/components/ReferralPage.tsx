@@ -6,11 +6,11 @@ import { Users, ExternalLink, Gift } from 'lucide-react';
 
 const ReferralPage = () => {
   const openTelegramBotWithCommand = () => {
-    const telegramUrl = 'https://t.me/Spongaibot?start=toneel';
+    const telegramUrl = 'https://t.me/Spongaibot?start=start';
     window.open(telegramUrl, '_blank');
     
     setTimeout(() => {
-      const deepLink = 'tg://resolve?domain=Spongaibot&start=toneel';
+      const deepLink = 'tg://resolve?domain=Spongaibot&start=start';
       window.location.href = deepLink;
     }, 100);
   };
@@ -54,7 +54,7 @@ const ReferralPage = () => {
             </Button>
             
             <p className="text-gray-400 text-xs text-center">
-              The command "/toneel" will be sent automatically
+              The command "/start" will be sent automatically
             </p>
           </CardContent>
         </Card>
