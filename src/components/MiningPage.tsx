@@ -23,7 +23,7 @@ const MiningPage: React.FC = () => {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [miningActive, setMiningActive] = useState(true);
   const [tonBalance, setTonBalance] = useState(0.15);
-  const [miningSpeed, setMiningSpeed] = useState(1);
+  const [miningSpeed, setMiningSpeed] = useState(0.05); // Changed from 1 to 0.05
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(true);
   const [friendsInvited, setFriendsInvited] = useState(1);
@@ -37,7 +37,7 @@ const MiningPage: React.FC = () => {
     const firstVisit = localStorage.getItem('toner-first-visit');
     if (!firstVisit) {
       setHasFreePackage(true);
-      setMiningSpeed(2);
+      setMiningSpeed(0.1); // Changed from 2 to 0.1 (2x of 0.05)
       setMiningActive(true);
       localStorage.setItem('toner-first-visit', 'true');
       toast({
@@ -59,7 +59,7 @@ const MiningPage: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (isWalletConnected) {
-        const earnings = miningSpeed * 0.001;
+        const earnings = (miningSpeed / 86400) * 0.001; // Adjusted for daily rate
         setMiningEarnings(prev => prev + earnings);
         setTotalMined(prev => prev + earnings);
       }
