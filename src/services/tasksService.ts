@@ -18,22 +18,15 @@ export const tasksService = {
     return data || [];
   },
 
-  // جلب المهام المكتملة للمستخدم الحالي
+  // جلب المهام المكتملة من localStorage
   async getUserCompletedTasks(): Promise<string[]> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return [];
-
-    const { data, error } = await supabase
-      .from('user_tasks')
-      .select('task_id')
-      .eq('user_id', user.id);
-    
-    if (error) {
-      console.error('Error fetching completed tasks:', error);
+    try {
+      const completedTasks = localStorage.getItem('completed_tasks');
+      return completedTasks ? JSON.parse(completedTasks) : [];
+    } catch (error) {
+      console.error('Error fetching completed tasks from localStorage:', error);
       return [];
     }
-    
-    return data?.map(item => item.task_id) || [];
   },
 
   // إضافة مهمة جديدة
@@ -82,36 +75,27 @@ export const tasksService = {
     }
   },
 
-  // إكمال مهمة
+  // إكمال مهمة - حفظ في localStorage
   async completeTask(taskId: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { error } = await supabase
-      .from('user_tasks')
-      .insert({
-        task_id: taskId,
-        user_id: user.id
-      });
-    
-    if (error) {
+    try {
+      const completedTasks = await this.getUserCompletedTasks();
+      if (!completedTasks.includes(taskId)) {
+        const updatedTasks = [...completedTasks, taskId];
+        localStorage.setItem('completed_tasks', JSON.stringify(updatedTasks));
+      }
+    } catch (error) {
       console.error('Error completing task:', error);
       throw error;
     }
   },
 
-  // إلغاء إكمال مهمة
+  // إلغاء إكمال مهمة - إزالة من localStorage
   async uncompleteTask(taskId: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { error } = await supabase
-      .from('user_tasks')
-      .delete()
-      .eq('task_id', taskId)
-      .eq('user_id', user.id);
-    
-    if (error) {
+    try {
+      const completedTasks = await this.getUserCompletedTasks();
+      const updatedTasks = completedTasks.filter(id => id !== taskId);
+      localStorage.setItem('completed_tasks', JSON.stringify(updatedTasks));
+    } catch (error) {
       console.error('Error uncompleting task:', error);
       throw error;
     }
