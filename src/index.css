@@ -45,7 +45,7 @@
   body {
     @apply bg-black text-white;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: radial-gradient(ellipse at center, #0f172a 0%, #000000 70%);
+    background: #000000;
     background-attachment: fixed;
     min-height: 100vh;
     overflow-x: hidden;
@@ -64,16 +64,82 @@
       radial-gradient(2px 2px at 40% 70%, #3b82f6, transparent),
       radial-gradient(1px 1px at 90% 40%, #ffffff, transparent),
       radial-gradient(1px 1px at 50% 50%, #60a5fa, transparent),
-      radial-gradient(2px 2px at 80% 10%, #ffffff, transparent);
-    background-size: 550px 550px, 350px 350px, 250px 250px, 200px 200px, 150px 150px;
-    animation: stars 20s ease-in-out infinite;
+      radial-gradient(2px 2px at 80% 10%, #ffffff, transparent),
+      radial-gradient(1px 1px at 10% 80%, #ffffff, transparent),
+      radial-gradient(2px 2px at 70% 20%, #fbbf24, transparent),
+      radial-gradient(1px 1px at 30% 60%, #ffffff, transparent),
+      radial-gradient(2px 2px at 85% 70%, #ec4899, transparent),
+      radial-gradient(1px 1px at 15% 10%, #ffffff, transparent),
+      radial-gradient(2px 2px at 60% 90%, #10b981, transparent),
+      radial-gradient(1px 1px at 95% 15%, #ffffff, transparent);
+    background-size: 
+      550px 550px, 350px 350px, 250px 250px, 200px 200px, 150px 150px,
+      400px 400px, 300px 300px, 180px 180px, 220px 220px, 160px 160px,
+      280px 280px, 140px 140px;
+    animation: twinkle 8s ease-in-out infinite, drift 20s linear infinite;
     pointer-events: none;
     z-index: -1;
   }
 
-  @keyframes stars {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(1px 1px at 25% 25%, #ffffff, transparent),
+      radial-gradient(1px 1px at 75% 75%, #3b82f6, transparent),
+      radial-gradient(2px 2px at 45% 15%, #ffffff, transparent),
+      radial-gradient(1px 1px at 65% 35%, #fbbf24, transparent),
+      radial-gradient(1px 1px at 35% 85%, #ec4899, transparent),
+      radial-gradient(2px 2px at 15% 45%, #ffffff, transparent),
+      radial-gradient(1px 1px at 85% 25%, #10b981, transparent),
+      radial-gradient(1px 1px at 55% 65%, #ffffff, transparent);
+    background-size: 
+      450px 450px, 380px 380px, 320px 320px, 280px 280px, 
+      240px 240px, 200px 200px, 180px 180px, 160px 160px;
+    animation: twinkle 12s ease-in-out infinite reverse, drift 25s linear infinite reverse;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { 
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    25% { 
+      opacity: 0.8;
+      transform: scale(1.1);
+    }
+    50% { 
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    75% { 
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes drift {
+    0% { 
+      transform: translateX(0) translateY(0);
+    }
+    25% { 
+      transform: translateX(10px) translateY(-5px);
+    }
+    50% { 
+      transform: translateX(-5px) translateY(10px);
+    }
+    75% { 
+      transform: translateX(-10px) translateY(-10px);
+    }
+    100% { 
+      transform: translateX(0) translateY(0);
+    }
   }
 
   /* Telegram WebApp styles */
