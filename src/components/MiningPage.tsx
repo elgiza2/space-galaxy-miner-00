@@ -22,7 +22,7 @@ const MiningPage: React.FC = () => {
   const [tonConnectUI] = useTonConnectUI();
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [miningActive, setMiningActive] = useState(true);
-  const [tonBalance, setTonBalance] = useState(0.15);
+  const [tonBalance, setTonBalance] = useState(0); // Set to 0 initially
   const [miningSpeed, setMiningSpeed] = useState(0.05); // 0.05 per day
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isWalletConnected, setIsWalletConnected] = useState(true);
@@ -65,7 +65,7 @@ const MiningPage: React.FC = () => {
   }, [isWalletConnected, miningSpeed]);
 
   const handleClaim = () => {
-    if (miningEarnings > 0) {
+    if (miningEarnings >= 0.2) { // Minimum claim amount set to 0.2 TON
       setTonBalance(prev => prev + miningEarnings);
       setMiningEarnings(0);
       hapticFeedback('success');
@@ -116,6 +116,7 @@ const MiningPage: React.FC = () => {
   };
 
   const canWithdraw = tonBalance >= 1 && hasDeposited;
+  const canClaim = miningEarnings >= 0.2; // Updated minimum claim amount
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-3 space-y-4 relative">
@@ -197,14 +198,21 @@ const MiningPage: React.FC = () => {
               Total mined: {totalMined.toFixed(6)} TON
             </div>
             
-            {/* Smaller Claim Button positioned below balance */}
+            {/* Claim Button */}
             <Button 
               onClick={handleClaim} 
-              disabled={miningEarnings <= 0}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 h-8 text-xs font-bold rounded-lg disabled:opacity-50" 
+              disabled={!canClaim}
+              className={`w-full h-8 text-xs font-bold rounded-lg ${
+                canClaim
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                  : 'bg-gray-600 cursor-not-allowed'
+              }`}
             >
               <Gift className="w-3 h-3 mr-1" />
-              Claim ({miningEarnings.toFixed(6)} TON)
+              {canClaim 
+                ? `Claim (${miningEarnings.toFixed(6)} TON)` 
+                : `Claim (${miningEarnings.toFixed(6)}/0.2 TON)`
+              }
             </Button>
           </CardContent>
         </Card>
