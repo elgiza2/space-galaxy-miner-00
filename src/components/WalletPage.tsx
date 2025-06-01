@@ -3,14 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Wallet, RefreshCw, LogIn, LogOut, Coins, TrendingUp } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { tonService, type TONTransaction } from '../services/tonService';
 
 const WalletPage = () => {
-  const { toast } = useToast();
   const [tonConnectUI] = useTonConnectUI();
-  const [tonBalance, setTonBalance] = useState(2.45);
   const [transactions, setTransactions] = useState<TONTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -49,16 +46,8 @@ const WalletPage = () => {
     setIsConnecting(true);
     try {
       await tonConnectUI.openModal();
-      toast({
-        title: "🔗 Wallet Connection",
-        description: "Please select your preferred wallet"
-      });
     } catch (error) {
-      toast({
-        title: "❌ Connection Error",
-        description: "Failed to open wallet",
-        variant: "destructive"
-      });
+      console.error('Connection failed:', error);
     } finally {
       setIsConnecting(false);
     }
@@ -69,10 +58,6 @@ const WalletPage = () => {
       await tonConnectUI.disconnect();
       setConnectedAddress(null);
       loadWalletData(targetAddress);
-      toast({
-        title: "✅ Disconnected",
-        description: "Wallet disconnected successfully"
-      });
     } catch (error) {
       console.error('Error disconnecting wallet:', error);
     }
@@ -81,16 +66,10 @@ const WalletPage = () => {
   const loadWalletData = async (address: string) => {
     setIsLoading(true);
     try {
-      const balanceData = await tonService.getBalance(address);
-      setTonBalance(parseFloat(balanceData.balance));
       const txData = await tonService.getTransactions(address, 3);
       setTransactions(txData);
     } catch (error) {
-      toast({
-        title: "⚠️ Loading Error",
-        description: "Failed to load wallet data",
-        variant: "destructive"
-      });
+      console.error('Failed to load wallet data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -105,11 +84,9 @@ const WalletPage = () => {
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-4">
             <div className="w-20 h-20 rounded-full flex items-center justify-center">
-              <img 
-                src="/lovable-uploads/c22ab63c-814a-4cae-8e3b-892adf617228.png" 
-                alt="TON Logo" 
-                className="w-16 h-16"
-              />
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                <Coins className="w-10 h-10 text-white" />
+              </div>
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">TON Wallet</h1>
@@ -137,40 +114,6 @@ const WalletPage = () => {
                 {isWalletConnected ? <LogOut className="w-3 h-3 mr-1" /> : <LogIn className="w-3 h-3 mr-1" />}
                 {isConnecting ? 'Connecting...' : (isWalletConnected ? 'Disconnect' : 'Connect')}
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* TON Balance */}
-        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-white flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <Coins className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <span className="text-lg font-bold">TON</span>
-                </div>
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => loadWalletData(targetAddress)} 
-                disabled={isLoading} 
-                className="text-blue-300 hover:text-white hover:bg-blue-500/20 h-8 w-8 p-0"
-              >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="font-bold text-white mb-2 text-2xl">
-              {tonBalance.toFixed(4)} <span className="text-blue-400">TON</span>
-            </p>
-            <div className="flex items-center gap-2 text-green-400">
-              <TrendingUp className="w-3 h-3" />
-              <span className="text-xs font-semibold">+2.5% Today</span>
             </div>
           </CardContent>
         </Card>

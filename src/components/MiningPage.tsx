@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
 import { UPGRADE_OPTIONS, formatTON, sendTONPayment, createTonConnector, type UpgradeOption } from '../utils/ton';
 import { hapticFeedback } from '../utils/telegram';
 import { useTonConnectUI } from '@tonconnect/ui-react';
@@ -20,7 +19,6 @@ const MINING_PHRASES = [
 ];
 
 const MiningPage: React.FC = () => {
-  const { toast } = useToast();
   const [tonConnectUI] = useTonConnectUI();
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const [miningActive, setMiningActive] = useState(true);
@@ -42,12 +40,8 @@ const MiningPage: React.FC = () => {
       setMiningSpeed(0.1); // 2x of 0.05
       setMiningActive(true);
       localStorage.setItem('toner-first-visit', 'true');
-      toast({
-        title: "🎉 Welcome to the Platform!",
-        description: "You got a free 2x mining package!",
-      });
     }
-  }, [toast]);
+  }, []);
 
   // Rotate phrases
   useEffect(() => {
@@ -75,10 +69,6 @@ const MiningPage: React.FC = () => {
       setTonBalance(prev => prev + miningEarnings);
       setMiningEarnings(0);
       hapticFeedback('success');
-      toast({
-        title: "🎉 TON Claimed!",
-        description: `You earned ${miningEarnings.toFixed(6)} TON`,
-      });
     }
   };
 
@@ -89,11 +79,6 @@ const MiningPage: React.FC = () => {
 
   const handlePurchaseUpgrade = async (upgrade: UpgradeOption) => {
     if (!tonConnectUI.wallet) {
-      toast({
-        title: "⚠️ Wallet Not Connected",
-        description: "Please connect your wallet to purchase upgrades",
-        variant: "destructive",
-      });
       return;
     }
 
@@ -115,44 +100,19 @@ const MiningPage: React.FC = () => {
       setMiningSpeed(upgrade.multiplier);
       setShowUpgradeModal(false);
       hapticFeedback('success');
-      
-      toast({
-        title: "✅ Upgrade Successful!",
-        description: `Mining speed is now ${upgrade.multiplier}x faster`,
-      });
     } catch (error) {
       console.error('TON payment failed:', error);
-      toast({
-        title: "❌ Payment Failed",
-        description: "Transaction was cancelled or failed",
-        variant: "destructive",
-      });
     }
   };
 
   const handleWithdraw = () => {
     if (tonBalance < 1) {
-      toast({
-        title: "⚠️ Minimum 1 TON Required",
-        description: "You need at least 1 TON to withdraw",
-        variant: "destructive",
-      });
       return;
     }
 
     if (!hasDeposited) {
-      toast({
-        title: "💰 Deposit Required",
-        description: "You need to deposit 0.1 TON to activate withdrawals",
-        variant: "destructive",
-      });
       return;
     }
-
-    toast({
-      title: "✅ Withdrawal Requested",
-      description: "Your withdrawal will be processed soon",
-    });
   };
 
   const canWithdraw = tonBalance >= 1 && hasDeposited;
@@ -172,7 +132,7 @@ const MiningPage: React.FC = () => {
             animate={{ rotate: 360 }}
             transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
           >
-            <Pickaxe className="w-6 h-6 text-white" />
+            <Coins className="w-6 h-6 text-white" />
           </motion.div>
           <div className="text-left">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent">
