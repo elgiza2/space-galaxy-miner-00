@@ -1,11 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
-
-type Task = Database['public']['Tables']['tasks']['Row'];
-type TaskInsert = Database['public']['Tables']['tasks']['Insert'];
-type TaskUpdate = Database['public']['Tables']['tasks']['Update'];
-type UserTask = Database['public']['Tables']['user_tasks']['Row'];
+import type { Task, TaskInsert, TaskUpdate, UserTask } from '@/types/database';
 
 export const tasksService = {
   // جلب جميع المهام
@@ -42,7 +37,7 @@ export const tasksService = {
   },
 
   // إضافة مهمة جديدة
-  async addTask(task: Omit<TaskInsert, 'id' | 'created_at' | 'updated_at'>): Promise<Task> {
+  async addTask(task: TaskInsert): Promise<Task> {
     const { data, error } = await supabase
       .from('tasks')
       .insert(task)

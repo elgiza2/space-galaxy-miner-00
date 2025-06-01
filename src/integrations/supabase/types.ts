@@ -9,7 +9,125 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          friends_invited: number | null
+          has_deposited: boolean | null
+          has_free_package: boolean | null
+          id: string
+          mining_earnings: number | null
+          mining_speed: number | null
+          name: string | null
+          ton_balance: number | null
+          total_mined: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          friends_invited?: number | null
+          has_deposited?: boolean | null
+          has_free_package?: boolean | null
+          id: string
+          mining_earnings?: number | null
+          mining_speed?: number | null
+          name?: string | null
+          ton_balance?: number | null
+          total_mined?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          friends_invited?: number | null
+          has_deposited?: boolean | null
+          has_free_package?: boolean | null
+          id?: string
+          mining_earnings?: number | null
+          mining_speed?: number | null
+          name?: string | null
+          ton_balance?: number | null
+          total_mined?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          arabic_description: string
+          arabic_title: string
+          completed: boolean
+          created_at: string
+          description: string
+          id: string
+          link: string | null
+          reward: number
+          sort_order: number | null
+          time_required: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          arabic_description: string
+          arabic_title: string
+          completed?: boolean
+          created_at?: string
+          description: string
+          id?: string
+          link?: string | null
+          reward?: number
+          sort_order?: number | null
+          time_required?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          arabic_description?: string
+          arabic_title?: string
+          completed?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          link?: string | null
+          reward?: number
+          sort_order?: number | null
+          time_required?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_tasks: {
+        Row: {
+          completed_at: string
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

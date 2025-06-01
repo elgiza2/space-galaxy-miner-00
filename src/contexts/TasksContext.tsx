@@ -2,17 +2,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { tasksService } from '@/services/tasksService';
 import { useToast } from '@/hooks/use-toast';
-import type { Database } from '@/integrations/supabase/types';
-
-type Task = Database['public']['Tables']['tasks']['Row'];
+import type { Task, TaskInsert, TaskUpdate } from '@/types/database';
 
 interface TasksContextType {
   tasks: Task[];
   completedTaskIds: string[];
   isLoading: boolean;
   refreshTasks: () => Promise<void>;
-  addTask: (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
-  updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
+  addTask: (task: TaskInsert) => Promise<void>;
+  updateTask: (id: string, updates: TaskUpdate) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   completeTask: (id: string) => Promise<void>;
 }
@@ -58,7 +56,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
     }
   };
 
-  const addTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
+  const addTask = async (taskData: TaskInsert) => {
     try {
       const newTask = await tasksService.addTask(taskData);
       setTasks(prev => [...prev, newTask]);
@@ -77,7 +75,7 @@ export const TasksProvider: React.FC<TasksProviderProps> = ({ children }) => {
     }
   };
 
-  const updateTask = async (id: string, updates: Partial<Task>) => {
+  const updateTask = async (id: string, updates: TaskUpdate) => {
     try {
       const updatedTask = await tasksService.updateTask(id, updates);
       setTasks(prev => prev.map(task => task.id === id ? updatedTask : task));

@@ -7,9 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Settings, Plus, Edit, Trash2, Save, X, RefreshCw, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTasks } from '@/contexts/TasksContext';
-import type { Database } from '@/integrations/supabase/types';
-
-type Task = Database['public']['Tables']['tasks']['Row'];
+import type { Task, TaskInsert } from '@/types/database';
 
 const TaskManagementPage = () => {
   const { toast } = useToast();
@@ -47,18 +45,19 @@ const TaskManagementPage = () => {
     }
 
     try {
-      await addTask({
+      const taskToAdd: TaskInsert = {
         title: newTask.title,
-        arabic_title: newTask.title, // Use English title for Arabic as well
+        arabic_title: newTask.title,
         description: newTask.description,
-        arabic_description: newTask.description, // Use English description for Arabic as well
+        arabic_description: newTask.description,
         reward: newTask.reward,
         link: newTask.link || null,
         time_required: newTask.time_required,
         completed: false,
         sort_order: tasks.length + 1
-      });
+      };
 
+      await addTask(taskToAdd);
       resetForm();
       setShowAddModal(false);
     } catch (error) {
@@ -94,9 +93,9 @@ const TaskManagementPage = () => {
     try {
       await updateTask(editingTask.id, {
         title: newTask.title,
-        arabic_title: newTask.title, // Use English title for Arabic as well
+        arabic_title: newTask.title,
         description: newTask.description,
-        arabic_description: newTask.description, // Use English description for Arabic as well
+        arabic_description: newTask.description,
         reward: newTask.reward,
         link: newTask.link || null,
         time_required: newTask.time_required
