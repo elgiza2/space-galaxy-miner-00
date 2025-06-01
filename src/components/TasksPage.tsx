@@ -30,8 +30,8 @@ const TasksPage = () => {
       const task = tasks.find(t => t.id === taskId);
       if (task && !completedTaskIds.includes(taskId)) {
         toast({
-          title: "تم إنجاز المهمة!",
-          description: `لقد حصلت على ${task.reward} نقطة`,
+          title: "Task Completed!",
+          description: `You earned ${task.reward} points`,
         });
       }
     } catch (error) {
@@ -47,8 +47,8 @@ const TasksPage = () => {
       setShowAdminPanel(true);
       setTitleClickCount(0);
       toast({
-        title: "تم فتح لوحة الإدارة",
-        description: "مرحباً بك في لوحة الإدارة",
+        title: "Admin Panel Opened",
+        description: "Welcome to the admin panel",
       });
     }
     
@@ -62,8 +62,8 @@ const TasksPage = () => {
   const handleAddTask = async () => {
     if (!newTask.title || !newTask.arabic_title || !newTask.description || !newTask.arabic_description) {
       toast({
-        title: "خطأ",
-        description: "يرجى ملء جميع الحقول المطلوبة",
+        title: "Error",
+        description: "Please fill all required fields",
         variant: "destructive",
       });
       return;
@@ -148,9 +148,9 @@ const TasksPage = () => {
             className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent mb-3 cursor-pointer"
             onClick={handleTitleClick}
           >
-            المهام
+            Tasks
           </h1>
-          <p className="text-gray-300 text-base leading-relaxed">أكمل المهام واحصل على مكافآت TON</p>
+          <p className="text-gray-300 text-base leading-relaxed">Complete tasks and earn TON rewards</p>
         </div>
 
         {/* Stats Cards */}
@@ -158,14 +158,14 @@ const TasksPage = () => {
           <Card className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 backdrop-blur-xl border-2 border-green-500/40 rounded-2xl">
             <CardContent className="p-4 text-center">
               <p className="text-green-400 text-2xl font-bold">{completedTasksCount}</p>
-              <p className="text-green-300 text-sm">مكتملة</p>
+              <p className="text-green-300 text-sm">Completed</p>
             </CardContent>
           </Card>
           
           <Card className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border-2 border-yellow-500/40 rounded-2xl">
             <CardContent className="p-4 text-center">
               <p className="text-yellow-400 text-2xl font-bold">{totalRewards}</p>
-              <p className="text-yellow-300 text-sm">النقاط المكتسبة</p>
+              <p className="text-yellow-300 text-sm">Points Earned</p>
             </CardContent>
           </Card>
         </div>
@@ -178,7 +178,7 @@ const TasksPage = () => {
           disabled={isLoading}
         >
           <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          تحديث المهام
+          Refresh Tasks
         </Button>
 
         {/* Tasks List */}
@@ -186,11 +186,11 @@ const TasksPage = () => {
           {isLoading ? (
             <div className="text-center text-gray-400 py-8">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
-              <p>جاري تحميل المهام...</p>
+              <p>Loading tasks...</p>
             </div>
           ) : visibleTasks.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
-              <p>لا توجد مهام متاحة</p>
+              <p>No tasks available</p>
             </div>
           ) : (
             visibleTasks.map(task => {
@@ -210,7 +210,7 @@ const TasksPage = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-white text-base leading-tight">
-                            {task.arabic_title}
+                            {task.title}
                           </CardTitle>
                         </div>
                         {showAdminPanel && (
@@ -226,13 +226,13 @@ const TasksPage = () => {
                       </div>
                       <div className="text-right ml-2">
                         <p className="text-yellow-400 font-bold text-sm">+{task.reward}</p>
-                        <p className="text-yellow-400 text-xs">نقطة</p>
+                        <p className="text-yellow-400 text-xs">Points</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0 pb-4">
                     <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                      {task.arabic_description}
+                      {task.description}
                     </p>
                     {task.link && (
                       <Button
@@ -241,7 +241,7 @@ const TasksPage = () => {
                         size="sm"
                         className="w-full mb-3 bg-blue-500/20 border-blue-500/50 text-blue-200 hover:bg-blue-500/30"
                       >
-                        فتح الرابط
+                        Open Link
                       </Button>
                     )}
                     <Button
@@ -256,10 +256,10 @@ const TasksPage = () => {
                       {isCompleted ? (
                         <>
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          مكتملة
+                          Completed
                         </>
                       ) : (
-                        'إنجاز المهمة'
+                        'Complete Task'
                       )}
                     </Button>
                   </CardContent>
@@ -273,7 +273,7 @@ const TasksPage = () => {
         {showAdminPanel && (
           <Card className="bg-gradient-to-br from-red-500/15 to-orange-500/15 backdrop-blur-xl border-2 border-red-500/40 rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-white text-center">لوحة الإدارة</CardTitle>
+              <CardTitle className="text-white text-center">Admin Panel</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <Button
@@ -281,13 +281,13 @@ const TasksPage = () => {
                 className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                إضافة مهمة جديدة
+                Add New Task
               </Button>
               
               <div className="text-center text-white text-sm">
-                <p>إجمالي المهام: {tasks.length}</p>
-                <p>مكتملة: {completedTasksCount}</p>
-                <p>معلقة: {tasks.length - completedTasksCount}</p>
+                <p>Total Tasks: {tasks.length}</p>
+                <p>Completed: {completedTasksCount}</p>
+                <p>Pending: {tasks.length - completedTasksCount}</p>
               </div>
               
               <Button
@@ -295,7 +295,7 @@ const TasksPage = () => {
                 variant="outline"
                 className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
               >
-                إغلاق لوحة الإدارة
+                Close Admin Panel
               </Button>
             </CardContent>
           </Card>
@@ -306,48 +306,48 @@ const TasksPage = () => {
       <Dialog open={showAddTaskModal} onOpenChange={setShowAddTaskModal}>
         <DialogContent className="glass-card border-white/20 text-white max-w-md bg-indigo-700">
           <DialogHeader>
-            <DialogTitle>إضافة مهمة جديدة</DialogTitle>
+            <DialogTitle>Add New Task</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <Input
-              placeholder="العنوان بالعربية"
-              value={newTask.arabic_title}
-              onChange={(e) => setNewTask(prev => ({ ...prev, arabic_title: e.target.value }))}
-              className="bg-white/10 border-white/30 text-white"
-            />
-            
-            <Input
-              placeholder="العنوان بالإنجليزية"
+              placeholder="English Title"
               value={newTask.title}
               onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
               className="bg-white/10 border-white/30 text-white"
             />
             
             <Input
-              placeholder="الوصف بالعربية"
-              value={newTask.arabic_description}
-              onChange={(e) => setNewTask(prev => ({ ...prev, arabic_description: e.target.value }))}
+              placeholder="Arabic Title"
+              value={newTask.arabic_title}
+              onChange={(e) => setNewTask(prev => ({ ...prev, arabic_title: e.target.value }))}
               className="bg-white/10 border-white/30 text-white"
             />
             
             <Input
-              placeholder="الوصف بالإنجليزية"
+              placeholder="English Description"
               value={newTask.description}
               onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
               className="bg-white/10 border-white/30 text-white"
             />
             
             <Input
+              placeholder="Arabic Description"
+              value={newTask.arabic_description}
+              onChange={(e) => setNewTask(prev => ({ ...prev, arabic_description: e.target.value }))}
+              className="bg-white/10 border-white/30 text-white"
+            />
+            
+            <Input
               type="number"
-              placeholder="المكافأة (نقاط)"
+              placeholder="Reward (points)"
               value={newTask.reward}
               onChange={(e) => setNewTask(prev => ({ ...prev, reward: parseInt(e.target.value) || 0 }))}
               className="bg-white/10 border-white/30 text-white"
             />
             
             <Input
-              placeholder="الرابط (اختياري)"
+              placeholder="Link (optional)"
               value={newTask.link}
               onChange={(e) => setNewTask(prev => ({ ...prev, link: e.target.value }))}
               className="bg-white/10 border-white/30 text-white"
@@ -355,7 +355,7 @@ const TasksPage = () => {
             
             <Input
               type="number"
-              placeholder="الوقت المطلوب (بالدقائق)"
+              placeholder="Time required (minutes)"
               value={newTask.time_required}
               onChange={(e) => setNewTask(prev => ({ ...prev, time_required: parseInt(e.target.value) || 5 }))}
               className="bg-white/10 border-white/30 text-white"
@@ -366,7 +366,7 @@ const TasksPage = () => {
               disabled={!newTask.title || !newTask.arabic_title || !newTask.description || !newTask.arabic_description}
               className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
             >
-              إضافة المهمة
+              Add Task
             </Button>
           </div>
         </DialogContent>
