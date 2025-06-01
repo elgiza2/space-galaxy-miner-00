@@ -26,12 +26,12 @@ const App = () => {
   const [isGameFullscreen, setIsGameFullscreen] = useState(false);
 
   const handleSplashComplete = () => {
-    const onboardingCompleted = localStorage.getItem('space-onboarding-completed');
+    const onboardingCompleted = localStorage.getItem('toner-onboarding-completed');
     setAppState(onboardingCompleted ? 'main' : 'onboarding');
   };
 
   const handleOnboardingComplete = () => {
-    localStorage.setItem('space-onboarding-completed', 'true');
+    localStorage.setItem('toner-onboarding-completed', 'true');
     setAppState('main');
   };
 
@@ -82,9 +82,9 @@ const App = () => {
                 {renderCurrentPage()}
               </div>
 
-              {/* Bottom Navigation - Hidden when game is fullscreen */}
+              {/* Enhanced Bottom Navigation */}
               {!isGameFullscreen && (
-                <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/20 p-4 z-50">
+                <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t-2 border-blue-500/30 p-4 z-50">
                   <div className="max-w-md mx-auto">
                     <div className="grid grid-cols-5 gap-2">
                       {navigationItems.map((item) => {
@@ -94,17 +94,22 @@ const App = () => {
                             key={item.id}
                             variant="ghost"
                             onClick={() => setCurrentPage(item.id as Page)}
-                            className={`flex flex-col items-center gap-1 h-auto py-2 px-2 text-xs ${
+                            className={`flex flex-col items-center gap-2 h-auto py-3 px-2 text-xs rounded-xl transition-all duration-200 ${
                               currentPage === item.id
-                                ? 'text-pink-400 bg-pink-400/20'
+                                ? 'text-blue-400 bg-blue-500/20 border border-blue-500/50'
                                 : 'text-gray-400 hover:text-white hover:bg-white/10'
                             }`}
                           >
                             <Icon className="w-6 h-6" />
-                            <span>{item.label}</span>
+                            <span className="font-semibold">{item.label}</span>
                           </Button>
                         );
                       })}
+                    </div>
+                    
+                    {/* Toner Branding in Navigation */}
+                    <div className="text-center mt-2">
+                      <p className="text-blue-300 text-xs">⚡ Toner - منصة تعدين TON</p>
                     </div>
                   </div>
                 </div>
