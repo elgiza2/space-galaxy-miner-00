@@ -18,7 +18,7 @@ const TasksPage = () => {
       if (task && !completedTaskIds.includes(taskId)) {
         toast({
           title: "Task Completed!",
-          description: `You earned ${task.reward} points`,
+          description: `You earned 0.05 TON`,
         });
       }
     } catch (error) {
@@ -82,9 +82,9 @@ const TasksPage = () => {
           
           <div className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border border-yellow-500/40 rounded-xl p-3 text-center">
             <p className="text-yellow-400 text-xl font-bold">
-              {tasks.filter(t => completedTaskIds.includes(t.id)).reduce((sum, t) => sum + t.reward, 0)}
+              {completedTasksCount * 0.05} TON
             </p>
-            <p className="text-yellow-300 text-xs">Points</p>
+            <p className="text-yellow-300 text-xs">Earned</p>
           </div>
         </div>
 
@@ -125,11 +125,9 @@ const TasksPage = () => {
                         <h3 className="text-white text-sm font-medium">{task.title}</h3>
                       </div>
                       <div className="text-right">
-                        <p className="text-yellow-400 font-bold text-sm">+{task.reward}</p>
+                        <p className="text-yellow-400 font-bold text-sm">0.05 TON</p>
                       </div>
                     </div>
-                    
-                    <p className="text-gray-300 mb-3 text-xs">{task.description}</p>
                     
                     {task.link && (
                       <Button
