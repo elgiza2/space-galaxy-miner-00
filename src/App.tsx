@@ -5,8 +5,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TonConnectUIProvider, useTonConnectUI } from '@tonconnect/ui-react';
-import SplashScreen from './components/SplashScreen';
-import OnboardingTutorial from './components/OnboardingTutorial';
 import MiningPage from './components/MiningPage';
 import TasksPage from './components/TasksPage';
 import ReferralPage from './components/ReferralPage';
@@ -17,12 +15,10 @@ import { Home, CheckSquare, Users } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
-type AppState = 'splash' | 'onboarding' | 'main';
 type Page = 'mining' | 'tasks' | 'referral' | 'taskManagement';
 
 const MainApp = () => {
   const [tonConnectUI] = useTonConnectUI();
-  const [appState, setAppState] = useState<AppState>('splash');
   const [currentPage, setCurrentPage] = useState<Page>('mining');
   const [tasksClickCount, setTasksClickCount] = useState(0);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -43,16 +39,6 @@ const MainApp = () => {
       unsubscribe();
     };
   }, [tonConnectUI]);
-
-  const handleSplashComplete = () => {
-    const onboardingCompleted = localStorage.getItem('onboarding-completed');
-    setAppState(onboardingCompleted ? 'main' : 'onboarding');
-  };
-
-  const handleOnboardingComplete = () => {
-    localStorage.setItem('onboarding-completed', 'true');
-    setAppState('main');
-  };
 
   const handleTasksClick = () => {
     const newCount = tasksClickCount + 1;
@@ -92,14 +78,6 @@ const MainApp = () => {
         return <MiningPage />;
     }
   };
-
-  if (appState === 'splash') {
-    return <SplashScreen onComplete={handleSplashComplete} />;
-  }
-  
-  if (appState === 'onboarding') {
-    return <OnboardingTutorial onComplete={handleOnboardingComplete} />;
-  }
 
   if (!isWalletConnected) {
     return <WalletConnectPage />;
