@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -21,10 +21,8 @@ const TasksPage = () => {
       const wasCompleted = completedTaskIds.includes(taskId);
       await completeTask(taskId);
       
-      // إذا كانت المهمة جديدة (لم تكن مكتملة من قبل)، أضف المكافأة
       if (!wasCompleted) {
-        // تحويل المكافأة من النقاط إلى TON (100 نقطة = 0.05 TON)
-        const tonReward = task.reward / 2000; // 100 نقطة = 0.05 TON
+        const tonReward = task.reward / 2000;
         await addTaskReward(tonReward);
       }
     } catch (error) {
@@ -37,7 +35,6 @@ const TasksPage = () => {
     setTitleClickCount(newCount);
     
     if (newCount === 5) {
-      // Navigate to admin panel through App.tsx logic
       setTitleClickCount(0);
     }
     
@@ -64,77 +61,62 @@ const TasksPage = () => {
 
   const visibleTasks = tasks.filter(task => !completedTaskIds.includes(task.id));
   const completedTasksCount = completedTaskIds.length;
-  const totalTonEarned = completedTasksCount * 0.05; // كل مهمة = 0.05 TON
 
   return (
     <div className="min-h-screen p-3 pb-24">
-      <div className="max-w-md mx-auto space-y-4">
-        {/* Compact Header */}
-        <div className="text-center mb-4">
+      <div className="max-w-md mx-auto space-y-3">
+        {/* Header */}
+        <div className="text-center mb-3">
           <h1 
-            className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-clip-text text-transparent mb-2 cursor-pointer"
+            className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent cursor-pointer"
             onClick={handleTitleClick}
           >
             Tasks
           </h1>
-          <p className="text-gray-300 text-sm">Complete tasks and earn rewards</p>
         </div>
 
-        {/* Compact Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 backdrop-blur-xl border border-green-500/40 rounded-xl p-3 text-center">
-            <p className="text-green-400 text-xl font-bold">{completedTasksCount}</p>
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 backdrop-blur-xl border border-green-500/40 rounded-lg p-2 text-center">
+            <p className="text-green-400 text-lg font-bold">{completedTasksCount}</p>
             <p className="text-green-300 text-xs">Completed</p>
           </div>
           
-          <div className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border border-yellow-500/40 rounded-xl p-3 text-center">
-            <p className="text-yellow-400 text-xl font-bold">
-              {totalTonEarned.toFixed(2)} TON
+          <div className="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 backdrop-blur-xl border border-yellow-500/40 rounded-lg p-2 text-center">
+            <p className="text-yellow-400 text-lg font-bold">
+              {(completedTasksCount * 0.05).toFixed(2)} TON
             </p>
             <p className="text-yellow-300 text-xs">Earned</p>
           </div>
         </div>
 
-        {/* Refresh Button */}
-        <Button
-          onClick={refreshTasks}
-          variant="outline"
-          className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 h-10"
-          disabled={isLoading}
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh Tasks
-        </Button>
-
-        {/* Simplified Tasks List */}
-        <div className="space-y-3">
+        {/* Tasks List */}
+        <div className="space-y-2">
           {isLoading ? (
-            <div className="text-center text-gray-400 py-6">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
-              <p>Loading...</p>
+            <div className="text-center text-gray-400 py-4">
+              <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-1" />
+              <p className="text-sm">Loading...</p>
             </div>
           ) : visibleTasks.length === 0 ? (
-            <div className="text-center text-gray-400 py-6">
-              <p>No tasks available</p>
+            <div className="text-center text-gray-400 py-4">
+              <p className="text-sm">No tasks available</p>
             </div>
           ) : (
             visibleTasks.map(task => {
               const isCompleted = completedTaskIds.includes(task.id);
-              const tonReward = task.reward / 2000; // تحويل النقاط إلى TON
+              const tonReward = task.reward / 2000;
               return (
                 <Card 
                   key={task.id} 
-                  className={`backdrop-blur-xl border ${getTaskTypeColor(task.link)} rounded-xl`}
+                  className={`backdrop-blur-xl border ${getTaskTypeColor(task.link)} rounded-lg`}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 flex-1">
                         {getTaskIcon(task.link)}
                         <h3 className="text-white text-sm font-medium">{task.title}</h3>
                       </div>
-                      <div className="text-right">
-                        <p className="text-yellow-400 font-bold text-sm">{tonReward.toFixed(2)} TON</p>
-                      </div>
+                      <p className="text-yellow-400 font-bold text-sm">{tonReward.toFixed(2)} TON</p>
                     </div>
                     
                     {task.link && (
@@ -142,7 +124,7 @@ const TasksPage = () => {
                         onClick={() => window.open(task.link!, '_blank')}
                         variant="outline"
                         size="sm"
-                        className="w-full mb-2 bg-blue-500/20 border-blue-500/50 text-blue-200 hover:bg-blue-500/30 h-8 text-xs"
+                        className="w-full mb-2 bg-blue-500/20 border-blue-500/50 text-blue-200 hover:bg-blue-500/30 h-7 text-xs"
                       >
                         Open Link
                       </Button>
@@ -151,7 +133,7 @@ const TasksPage = () => {
                     <Button
                       onClick={() => handleCompleteTask(task.id)}
                       disabled={isCompleted}
-                      className={`w-full h-10 text-sm ${
+                      className={`w-full h-8 text-xs ${
                         isCompleted 
                           ? 'bg-green-600 hover:bg-green-600' 
                           : 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700'
@@ -159,7 +141,7 @@ const TasksPage = () => {
                     >
                       {isCompleted ? (
                         <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
+                          <CheckCircle className="w-3 h-3 mr-1" />
                           Completed
                         </>
                       ) : (
