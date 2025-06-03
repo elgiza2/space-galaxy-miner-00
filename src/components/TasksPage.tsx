@@ -26,8 +26,8 @@ const TasksPage = () => {
         await addTaskReward(tonReward);
         
         toast({
-          title: "🎉 تهانينا!",
-          description: `حصلت على ${tonReward.toFixed(2)} TON`,
+          title: "🎉 Congratulations!",
+          description: `You earned ${tonReward.toFixed(2)} TON`,
           className: "bg-gradient-to-r from-green-500/90 to-emerald-500/90 border-green-400/50 text-white backdrop-blur-xl",
         });
       }
@@ -70,7 +70,7 @@ const TasksPage = () => {
   const totalEarned = (completedTasksCount * 0.05).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 pb-24">
+    <div className="min-h-screen flex flex-col items-center justify-center p-3 space-y-4 relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="max-w-md mx-auto space-y-4">
         {/* Header with improved design */}
         <div className="text-center mb-6">
@@ -83,9 +83,9 @@ const TasksPage = () => {
             className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent cursor-pointer"
             onClick={handleTitleClick}
           >
-            المهام اليومية
+            Daily Tasks
           </h1>
-          <p className="text-gray-400 text-sm mt-2">أكمل المهام واحصل على مكافآت TON</p>
+          <p className="text-gray-400 text-sm mt-2">Complete tasks and earn TON rewards</p>
         </div>
 
         {/* Enhanced Stats Cards */}
@@ -97,7 +97,7 @@ const TasksPage = () => {
                 <CheckCircle className="w-6 h-6 text-emerald-400 mr-2" />
                 <p className="text-emerald-400 text-2xl font-bold">{completedTasksCount}</p>
               </div>
-              <p className="text-emerald-300 text-sm">مهام مكتملة</p>
+              <p className="text-emerald-300 text-sm">Completed Tasks</p>
             </div>
           </div>
           
@@ -108,7 +108,7 @@ const TasksPage = () => {
                 <Gift className="w-6 h-6 text-yellow-400 mr-2" />
                 <p className="text-yellow-400 text-2xl font-bold">{totalEarned}</p>
               </div>
-              <p className="text-yellow-300 text-sm">TON مكتسب</p>
+              <p className="text-yellow-300 text-sm">TON Earned</p>
             </div>
           </div>
         </div>
@@ -118,13 +118,13 @@ const TasksPage = () => {
           {isLoading ? (
             <div className="text-center text-gray-400 py-8">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-purple-400" />
-              <p className="text-lg">جارٍ تحميل المهام...</p>
+              <p className="text-lg">Loading tasks...</p>
             </div>
           ) : visibleTasks.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
               <Trophy className="w-12 h-12 mx-auto mb-3 text-purple-400" />
-              <p className="text-lg">لا توجد مهام متاحة</p>
-              <p className="text-sm mt-2">تحقق لاحقاً للمزيد من المهام</p>
+              <p className="text-lg">No tasks available</p>
+              <p className="text-sm mt-2">Check back later for more tasks</p>
             </div>
           ) : (
             visibleTasks.map((task, index) => {
@@ -165,7 +165,7 @@ const TasksPage = () => {
                           size="sm"
                           className="w-full bg-blue-500/10 border-blue-500/30 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400/50 h-9 text-sm transition-all duration-200"
                         >
-                          فتح الرابط
+                          Open Link
                         </Button>
                       )}
                       
@@ -181,12 +181,12 @@ const TasksPage = () => {
                         {isCompleted ? (
                           <>
                             <CheckCircle className="w-4 h-4 mr-2" />
-                            مكتملة ✨
+                            Completed ✨
                           </>
                         ) : (
                           <>
                             <Gift className="w-4 h-4 mr-2" />
-                            إكمال المهمة
+                            Complete Task
                           </>
                         )}
                       </Button>
