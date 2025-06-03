@@ -14,6 +14,7 @@ const TaskManagementPage = () => {
   const { tasks, isLoading, refreshTasks, addTask, updateTask, deleteTask } = useTasks();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newTask, setNewTask] = useState<{
     title: string;
     arabic_title: string;
@@ -22,50 +23,98 @@ const TaskManagementPage = () => {
     reward: number;
     link: string;
     time_required: number;
-    ton_reward?: number;
   }>({
     title: '',
     arabic_title: '',
     description: '',
     arabic_description: '',
-    reward: 0,
+    reward: 50,
     link: '',
-    time_required: 5,
-    ton_reward: 0
+    time_required: 5
   });
 
-  const handleAddTask = async () => {
-    if (!newTask.title || !newTask.description || (newTask.reward <= 0 && (!newTask.ton_reward || newTask.ton_reward <= 0))) {
+  const validateTask = () => {
+    if (!newTask.title.trim()) {
       toast({
-        title: "Error",
-        description: "Please fill all required fields and set a reward",
+        title: "خطأ في البيانات",
+        description: "يرجى إدخال عنوان المهمة باللغة الإنجليزية",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
+    if (!newTask.arabic_title.trim()) {
+      toast({
+        title: "خطأ في البيانات",
+        description: "يرجى إدخال عنوان المهمة باللغة العربية",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!newTask.description.trim()) {
+      toast({
+        title: "خطأ في البيانات",
+        description: "يرجى إدخال وصف المهمة",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (newTask.reward <= 0) {
+      toast({
+        title: "خطأ في البيانات",
+        description: "يجب أن تكون المكافأة أكبر من صفر",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (newTask.time_required <= 0) {
+      toast({
+        title: "خطأ في البيانات",
+        description: "يجب أن يكون الوقت المطلوب أكبر من صفر",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleAddTask = async () => {
+    if (!validateTask()) return;
+
     try {
+      setIsSubmitting(true);
+      console.log('بدء إضافة مهمة جديدة:', newTask);
+
       const taskToAdd: TaskInsert = {
-        title: newTask.title,
-        arabic_title: newTask.title,
-        description: newTask.description,
-        arabic_description: newTask.description,
+        title: newTask.title.trim(),
+        arabic_title: newTask.arabic_title.trim(),
+        description: newTask.description.trim(),
+        arabic_description: newTask.description.trim(),
         reward: newTask.reward,
-        link: newTask.link || null,
+        link: newTask.link.trim() || null,
         time_required: newTask.time_required,
         completed: false,
         sort_order: tasks.length + 1
       };
 
       await addTask(taskToAdd);
+      console.log('تم إضافة المهمة بنجاح');
+      
       resetForm();
       setShowAddModal(false);
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error('فشل في إضافة المهمة:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEditTask = (task: Task) => {
+    console.log('بدء تعديل المهمة:', task);
     setEditingTask(task);
     setNewTask({
       title: task.title,
@@ -74,46 +123,46 @@ const TaskManagementPage = () => {
       arabic_description: task.arabic_description,
       reward: task.reward,
       link: task.link || '',
-      time_required: task.time_required,
-      ton_reward: 0
+      time_required: task.time_required
     });
     setShowAddModal(true);
   };
 
   const handleUpdateTask = async () => {
-    if (!editingTask || !newTask.title || !newTask.description || (newTask.reward <= 0 && (!newTask.ton_reward || newTask.ton_reward <= 0))) {
-      toast({
-        title: "Error",
-        description: "Please fill all required fields and set a reward",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!editingTask || !validateTask()) return;
 
     try {
+      setIsSubmitting(true);
+      console.log('بدء تحديث المهمة:', editingTask.id, newTask);
+
       await updateTask(editingTask.id, {
-        title: newTask.title,
-        arabic_title: newTask.title,
-        description: newTask.description,
-        arabic_description: newTask.description,
+        title: newTask.title.trim(),
+        arabic_title: newTask.arabic_title.trim(),
+        description: newTask.description.trim(),
+        arabic_description: newTask.description.trim(),
         reward: newTask.reward,
-        link: newTask.link || null,
+        link: newTask.link.trim() || null,
         time_required: newTask.time_required
       });
 
+      console.log('تم تحديث المهمة بنجاح');
       resetForm();
       setEditingTask(null);
       setShowAddModal(false);
     } catch (error) {
-      console.error('Error updating task:', error);
+      console.error('فشل في تحديث المهمة:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteTask = async (taskId: string) => {
     try {
+      console.log('بدء حذف المهمة:', taskId);
       await deleteTask(taskId);
+      console.log('تم حذف المهمة بنجاح');
     } catch (error) {
-      console.error('Error deleting task:', error);
+      console.error('فشل في حذف المهمة:', error);
     }
   };
 
@@ -123,11 +172,16 @@ const TaskManagementPage = () => {
       arabic_title: '',
       description: '',
       arabic_description: '',
-      reward: 0,
+      reward: 50,
       link: '',
-      time_required: 5,
-      ton_reward: 0
+      time_required: 5
     });
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setEditingTask(null);
+    resetForm();
   };
 
   const getTaskTypeColor = (link: string | null) => {
@@ -176,6 +230,7 @@ const TaskManagementPage = () => {
           <Button
             onClick={() => setShowAddModal(true)}
             className="h-12 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-semibold"
+            disabled={isSubmitting}
           >
             <Plus className="w-5 h-5 mr-2" />
             إضافة مهمة
@@ -202,6 +257,7 @@ const TaskManagementPage = () => {
           ) : tasks.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
               <p>لا توجد مهام</p>
+              <p className="text-sm mt-2">انقر على "إضافة مهمة" لإنشاء مهمة جديدة</p>
             </div>
           ) : (
             tasks.map(task => (
@@ -232,6 +288,7 @@ const TaskManagementPage = () => {
                       size="sm"
                       variant="outline"
                       className="flex-1 bg-blue-500/20 border-blue-500/50 text-blue-200 hover:bg-blue-500/30"
+                      disabled={isSubmitting}
                     >
                       <Edit className="w-3 h-3 mr-1" />
                       تعديل
@@ -241,6 +298,7 @@ const TaskManagementPage = () => {
                       size="sm"
                       variant="outline"
                       className="flex-1 bg-red-500/20 border-red-500/50 text-red-200 hover:bg-red-500/30"
+                      disabled={isSubmitting}
                     >
                       <Trash2 className="w-3 h-3 mr-1" />
                       حذف
@@ -253,82 +311,87 @@ const TaskManagementPage = () => {
         </div>
 
         {/* Add/Edit Task Modal */}
-        <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
+        <Dialog open={showAddModal} onOpenChange={handleCloseModal}>
           <DialogContent className="bg-gradient-to-br from-gray-900/95 to-slate-900/95 backdrop-blur-xl border border-gray-500/30 text-white max-w-md rounded-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-center">
-                {editingTask ? 'Edit Task' : 'Add New Task'}
+                {editingTask ? 'تعديل المهمة' : 'إضافة مهمة جديدة'}
               </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-4">
-              <Input
-                placeholder="Task Title (English)"
-                value={newTask.title}
-                onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
-              
-              <Input
-                placeholder="Task Description (English)"
-                value={newTask.description}
-                onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
-              
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-3">
+                <Input
+                  placeholder="عنوان المهمة باللغة الإنجليزية"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                />
+                
+                <Input
+                  placeholder="عنوان المهمة باللغة العربية"
+                  value={newTask.arabic_title}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, arabic_title: e.target.value }))}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                />
+                
+                <Input
+                  placeholder="وصف المهمة"
+                  value={newTask.description}
+                  onChange={(e) => setNewTask(prev => ({ 
+                    ...prev, 
+                    description: e.target.value,
+                    arabic_description: e.target.value 
+                  }))}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                />
+                
                 <Input
                   type="number"
-                  placeholder="Points Reward"
+                  placeholder="المكافأة (نقاط)"
                   value={newTask.reward}
                   onChange={(e) => setNewTask(prev => ({ ...prev, reward: parseInt(e.target.value) || 0 }))}
                   className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                  min="1"
                 />
                 
-                <div className="relative">
-                  <Button
-                    onClick={() => setNewTask(prev => ({ ...prev, reward: 0, ton_reward: 0.05 }))}
-                    variant="outline"
-                    className="w-full bg-yellow-500/20 border-yellow-500/50 text-yellow-200 hover:bg-yellow-500/30"
-                  >
-                    <Coins className="w-4 h-4 mr-1" />
-                    0.05 TON
-                  </Button>
-                </div>
+                <Input
+                  placeholder="رابط المهمة (اختياري)"
+                  value={newTask.link}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, link: e.target.value }))}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                />
+                
+                <Input
+                  type="number"
+                  placeholder="الوقت المطلوب (بالدقائق)"
+                  value={newTask.time_required}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, time_required: parseInt(e.target.value) || 5 }))}
+                  className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+                  disabled={isSubmitting}
+                  min="1"
+                />
               </div>
               
-              <Input
-                placeholder="Link (Optional)"
-                value={newTask.link}
-                onChange={(e) => setNewTask(prev => ({ ...prev, link: e.target.value }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
-              
-              <Input
-                type="number"
-                placeholder="Time Required (minutes)"
-                value={newTask.time_required}
-                onChange={(e) => setNewTask(prev => ({ ...prev, time_required: parseInt(e.target.value) || 5 }))}
-                className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
-              />
-              
-              <div className="flex gap-2">
+              <div className="flex gap-2 mt-6">
                 <Button
                   onClick={editingTask ? handleUpdateTask : handleAddTask}
-                  disabled={!newTask.title || !newTask.description || (newTask.reward <= 0 && (!newTask.ton_reward || newTask.ton_reward <= 0))}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {editingTask ? 'Update' : 'Add'} Task
+                  {isSubmitting ? 'جاري الحفظ...' : (editingTask ? 'تحديث المهمة' : 'إضافة المهمة')}
                 </Button>
                 <Button
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingTask(null);
-                    resetForm();
-                  }}
+                  onClick={handleCloseModal}
                   variant="outline"
                   className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                  disabled={isSubmitting}
                 >
                   <X className="w-4 h-4" />
                 </Button>
