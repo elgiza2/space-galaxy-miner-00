@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Settings, Plus, Edit, Trash2, Save, X, RefreshCw, Coins } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useTasks } from '@/contexts/TasksContext';
+import { useSupabaseTasks } from '@/contexts/SupabaseTasksContext';
 import type { Task, TaskInsert } from '@/types/database';
 
 const TaskManagementPage = () => {
   const { toast } = useToast();
-  const { tasks, isLoading, refreshTasks, addTask, updateTask, deleteTask } = useTasks();
+  const { tasks, isLoading, refreshTasks, addTask, updateTask, deleteTask } = useSupabaseTasks();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,8 +36,8 @@ const TaskManagementPage = () => {
   const validateTask = () => {
     if (!newTask.title.trim()) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يرجى إدخال عنوان المهمة باللغة الإنجليزية",
+        title: "Data Error",
+        description: "Please enter task title in English",
         variant: "destructive",
       });
       return false;
@@ -45,8 +45,8 @@ const TaskManagementPage = () => {
 
     if (!newTask.arabic_title.trim()) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يرجى إدخال عنوان المهمة باللغة العربية",
+        title: "Data Error", 
+        description: "Please enter task title in Arabic",
         variant: "destructive",
       });
       return false;
@@ -54,8 +54,8 @@ const TaskManagementPage = () => {
 
     if (!newTask.description.trim()) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يرجى إدخال وصف المهمة",
+        title: "Data Error",
+        description: "Please enter task description",
         variant: "destructive",
       });
       return false;
@@ -63,8 +63,8 @@ const TaskManagementPage = () => {
 
     if (newTask.reward <= 0) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يجب أن تكون المكافأة أكبر من صفر",
+        title: "Data Error",
+        description: "Reward must be greater than zero",
         variant: "destructive",
       });
       return false;
@@ -72,8 +72,8 @@ const TaskManagementPage = () => {
 
     if (newTask.time_required <= 0) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يجب أن يكون الوقت المطلوب أكبر من صفر",
+        title: "Data Error",
+        description: "Time required must be greater than zero",
         variant: "destructive",
       });
       return false;
@@ -87,7 +87,7 @@ const TaskManagementPage = () => {
 
     try {
       setIsSubmitting(true);
-      console.log('بدء إضافة مهمة جديدة:', newTask);
+      console.log('Starting to add new task:', newTask);
 
       const taskToAdd: TaskInsert = {
         title: newTask.title.trim(),
@@ -102,19 +102,19 @@ const TaskManagementPage = () => {
       };
 
       await addTask(taskToAdd);
-      console.log('تم إضافة المهمة بنجاح');
+      console.log('Task added successfully');
       
       resetForm();
       setShowAddModal(false);
     } catch (error) {
-      console.error('فشل في إضافة المهمة:', error);
+      console.error('Failed to add task:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleEditTask = (task: Task) => {
-    console.log('بدء تعديل المهمة:', task);
+    console.log('Starting to edit task:', task);
     setEditingTask(task);
     setNewTask({
       title: task.title,
@@ -133,7 +133,7 @@ const TaskManagementPage = () => {
 
     try {
       setIsSubmitting(true);
-      console.log('بدء تحديث المهمة:', editingTask.id, newTask);
+      console.log('Starting to update task:', editingTask.id, newTask);
 
       await updateTask(editingTask.id, {
         title: newTask.title.trim(),
@@ -145,12 +145,12 @@ const TaskManagementPage = () => {
         time_required: newTask.time_required
       });
 
-      console.log('تم تحديث المهمة بنجاح');
+      console.log('Task updated successfully');
       resetForm();
       setEditingTask(null);
       setShowAddModal(false);
     } catch (error) {
-      console.error('فشل في تحديث المهمة:', error);
+      console.error('Failed to update task:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -158,11 +158,11 @@ const TaskManagementPage = () => {
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      console.log('بدء حذف المهمة:', taskId);
+      console.log('Starting to delete task:', taskId);
       await deleteTask(taskId);
-      console.log('تم حذف المهمة بنجاح');
+      console.log('Task deleted successfully');
     } catch (error) {
-      console.error('فشل في حذف المهمة:', error);
+      console.error('Failed to delete task:', error);
     }
   };
 
@@ -204,9 +204,9 @@ const TaskManagementPage = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent mb-3">
-            إدارة المهام
+            Task Management
           </h1>
-          <p className="text-gray-300 text-base leading-relaxed">إدارة وتكوين المهام للمستخدمين</p>
+          <p className="text-gray-300 text-base leading-relaxed">Manage and configure tasks for users</p>
         </div>
 
         {/* Stats */}
@@ -215,11 +215,11 @@ const TaskManagementPage = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-orange-400 text-2xl font-bold">{tasks.length}</p>
-                <p className="text-orange-300 text-sm">إجمالي المهام</p>
+                <p className="text-orange-300 text-sm">Total Tasks</p>
               </div>
               <div>
                 <p className="text-red-400 text-2xl font-bold">{totalRewards}</p>
-                <p className="text-red-300 text-sm">إجمالي المكافآت</p>
+                <p className="text-red-300 text-sm">Total Rewards</p>
               </div>
             </div>
           </CardContent>
@@ -233,7 +233,7 @@ const TaskManagementPage = () => {
             disabled={isSubmitting}
           >
             <Plus className="w-5 h-5 mr-2" />
-            إضافة مهمة
+            Add Task
           </Button>
           
           <Button
@@ -243,7 +243,7 @@ const TaskManagementPage = () => {
             disabled={isLoading}
           >
             <RefreshCw className={`w-5 h-5 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            تحديث
+            Refresh
           </Button>
         </div>
 
@@ -252,12 +252,12 @@ const TaskManagementPage = () => {
           {isLoading ? (
             <div className="text-center text-gray-400 py-8">
               <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
-              <p>جاري تحميل المهام...</p>
+              <p>Loading tasks...</p>
             </div>
           ) : tasks.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
-              <p>لا توجد مهام</p>
-              <p className="text-sm mt-2">انقر على "إضافة مهمة" لإنشاء مهمة جديدة</p>
+              <p>No tasks found</p>
+              <p className="text-sm mt-2">Click "Add Task" to create a new task</p>
             </div>
           ) : (
             tasks.map(task => (
@@ -265,23 +265,23 @@ const TaskManagementPage = () => {
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-white text-base mb-1">{task.arabic_title}</CardTitle>
+                      <CardTitle className="text-white text-base mb-1">{task.title}</CardTitle>
                       <div className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${getTaskTypeColor(task.link)}`}>
-                        {task.link?.includes('telegram') ? 'تليجرام' : task.link?.includes('twitter') ? 'تويتر' : 'عام'}
+                        {task.link?.includes('telegram') ? 'Telegram' : task.link?.includes('twitter') ? 'Twitter' : 'General'}
                       </div>
                     </div>
                     <div className="text-right ml-2">
                       <p className="text-yellow-400 font-bold text-sm">+{task.reward}</p>
-                      <p className="text-yellow-400 text-xs">نقطة</p>
+                      <p className="text-yellow-400 text-xs">points</p>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <p className="text-gray-300 text-sm mb-3">{task.arabic_description}</p>
+                  <p className="text-gray-300 text-sm mb-3">{task.description}</p>
                   {task.link && (
                     <p className="text-blue-400 text-xs mb-3 break-all">{task.link}</p>
                   )}
-                  <p className="text-gray-400 text-xs mb-3">الوقت المطلوب: {task.time_required} دقيقة</p>
+                  <p className="text-gray-400 text-xs mb-3">Time required: {task.time_required} minutes</p>
                   <div className="flex gap-2">
                     <Button
                       onClick={() => handleEditTask(task)}
@@ -291,7 +291,7 @@ const TaskManagementPage = () => {
                       disabled={isSubmitting}
                     >
                       <Edit className="w-3 h-3 mr-1" />
-                      تعديل
+                      Edit
                     </Button>
                     <Button
                       onClick={() => handleDeleteTask(task.id)}
@@ -301,7 +301,7 @@ const TaskManagementPage = () => {
                       disabled={isSubmitting}
                     >
                       <Trash2 className="w-3 h-3 mr-1" />
-                      حذف
+                      Delete
                     </Button>
                   </div>
                 </CardContent>
@@ -315,14 +315,14 @@ const TaskManagementPage = () => {
           <DialogContent className="bg-gradient-to-br from-gray-900/95 to-slate-900/95 backdrop-blur-xl border border-gray-500/30 text-white max-w-md rounded-2xl">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-center">
-                {editingTask ? 'تعديل المهمة' : 'إضافة مهمة جديدة'}
+                {editingTask ? 'Edit Task' : 'Add New Task'}
               </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-3">
                 <Input
-                  placeholder="عنوان المهمة باللغة الإنجليزية"
+                  placeholder="Task title in English"
                   value={newTask.title}
                   onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
                   className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -330,7 +330,7 @@ const TaskManagementPage = () => {
                 />
                 
                 <Input
-                  placeholder="عنوان المهمة باللغة العربية"
+                  placeholder="Task title in Arabic"
                   value={newTask.arabic_title}
                   onChange={(e) => setNewTask(prev => ({ ...prev, arabic_title: e.target.value }))}
                   className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -338,7 +338,7 @@ const TaskManagementPage = () => {
                 />
                 
                 <Input
-                  placeholder="وصف المهمة"
+                  placeholder="Task description"
                   value={newTask.description}
                   onChange={(e) => setNewTask(prev => ({ 
                     ...prev, 
@@ -351,7 +351,7 @@ const TaskManagementPage = () => {
                 
                 <Input
                   type="number"
-                  placeholder="المكافأة (نقاط)"
+                  placeholder="Reward (points)"
                   value={newTask.reward}
                   onChange={(e) => setNewTask(prev => ({ ...prev, reward: parseInt(e.target.value) || 0 }))}
                   className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -360,7 +360,7 @@ const TaskManagementPage = () => {
                 />
                 
                 <Input
-                  placeholder="رابط المهمة (اختياري)"
+                  placeholder="Task link (optional)"
                   value={newTask.link}
                   onChange={(e) => setNewTask(prev => ({ ...prev, link: e.target.value }))}
                   className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -369,7 +369,7 @@ const TaskManagementPage = () => {
                 
                 <Input
                   type="number"
-                  placeholder="الوقت المطلوب (بالدقائق)"
+                  placeholder="Time required (minutes)"
                   value={newTask.time_required}
                   onChange={(e) => setNewTask(prev => ({ ...prev, time_required: parseInt(e.target.value) || 5 }))}
                   className="bg-white/10 border-white/30 text-white placeholder:text-gray-400"
@@ -385,7 +385,7 @@ const TaskManagementPage = () => {
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:opacity-50"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {isSubmitting ? 'جاري الحفظ...' : (editingTask ? 'تحديث المهمة' : 'إضافة المهمة')}
+                  {isSubmitting ? 'Saving...' : (editingTask ? 'Update Task' : 'Add Task')}
                 </Button>
                 <Button
                   onClick={handleCloseModal}

@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TonConnectUIProvider, useTonConnectUI } from '@tonconnect/ui-react';
-import { TasksProvider } from './contexts/TasksContext';
+import { SupabaseTasksProvider } from './contexts/SupabaseTasksContext';
 import { MiningProvider } from './contexts/MiningContext';
 import MiningPage from './components/MiningPage';
 import TasksPage from './components/TasksPage';
@@ -86,7 +86,7 @@ const MainApp = () => {
   }
 
   return (
-    <TasksProvider>
+    <SupabaseTasksProvider>
       <MiningProvider>
         <div className="min-h-screen flex flex-col">
           <div className="flex-1 pb-20">
@@ -119,7 +119,7 @@ const MainApp = () => {
           </div>
         </div>
       </MiningProvider>
-    </TasksProvider>
+    </SupabaseTasksProvider>
   );
 };
 

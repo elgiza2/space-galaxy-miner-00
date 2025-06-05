@@ -4,12 +4,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw, Gift, Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useTasks } from '@/contexts/TasksContext';
+import { useSupabaseTasks } from '@/contexts/SupabaseTasksContext';
 import { useMining } from '@/contexts/MiningContext';
 
 const TasksPage = () => {
   const { toast } = useToast();
-  const { tasks, completedTaskIds, isLoading, refreshTasks, completeTask } = useTasks();
+  const { tasks, completedTaskIds, isLoading, refreshTasks, completeTask } = useSupabaseTasks();
   const { addTaskReward } = useMining();
   const [titleClickCount, setTitleClickCount] = useState(0);
 
