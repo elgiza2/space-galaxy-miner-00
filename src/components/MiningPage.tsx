@@ -7,6 +7,7 @@ import { UPGRADE_OPTIONS, formatTON, sendTONPayment, createTonConnector, type Up
 import { hapticFeedback } from '../utils/telegram';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Zap, TrendingUp, Users, Gift, ArrowDownToLine, Pickaxe, Star } from 'lucide-react';
+import DiscountPrice from './DiscountPrice';
 
 const MINING_PHRASES = [
   'Start mining TON easily',
@@ -171,12 +172,15 @@ const MiningPage: React.FC = () => {
     try {
       console.log('Sending TON payment for upgrade:', upgrade);
       
+      // Calculate discounted price (50% off)
+      const discountedPrice = upgrade.price * 0.5;
+      
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
             address: 'UQAqPFXgVhDpXe-WbJgfwVd_ETkmPMqEjLaNKLtDTKxVAJgk',
-            amount: (upgrade.price * 1e9).toString(),
+            amount: (discountedPrice * 1e9).toString(),
           },
         ],
       };
@@ -367,6 +371,9 @@ const MiningPage: React.FC = () => {
               ⚡ Upgrade Mining
             </DialogTitle>
             <p className="text-gray-300 text-xs">Pay with TON to upgrade</p>
+            <div className="text-center text-sm text-green-400 font-bold bg-green-500/10 rounded-lg p-2 border border-green-500/30">
+              🔥 MEGA SALE: 50% OFF All Upgrades!
+            </div>
           </DialogHeader>
           
           <div className="space-y-2">
@@ -384,10 +391,7 @@ const MiningPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-blue-400 text-sm">
-                      {formatTON(upgrade.price)}
-                    </div>
-                    <div className="text-xs text-gray-400">Real TON</div>
+                    <DiscountPrice originalPrice={upgrade.price} className="text-right" />
                   </div>
                 </Button>
               </motion.div>
