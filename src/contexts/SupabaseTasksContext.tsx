@@ -1,8 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabaseTasksService } from '@/services/supabaseTasksService';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import type { Task, TaskInsert, TaskUpdate } from '@/types/database';
 
@@ -88,8 +86,8 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
     } catch (error) {
       console.error('Error refreshing tasks:', error);
       toast({
-        title: "Error",
-        description: "Failed to fetch tasks",
+        title: "خطأ",
+        description: "فشل في تحميل المهام",
         variant: "destructive",
       });
     } finally {
@@ -101,8 +99,25 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
     try {
       console.log('Adding new task:', taskData);
       
+      // Validate required fields
+      if (!taskData.title?.trim()) {
+        throw new Error('العنوان مطلوب');
+      }
+      
+      if (!taskData.arabic_title?.trim()) {
+        throw new Error('العنوان بالعربية مطلوب');
+      }
+      
+      if (!taskData.description?.trim()) {
+        throw new Error('الوصف مطلوب');
+      }
+
+      if (!taskData.reward || taskData.reward <= 0) {
+        throw new Error('المكافأة يجب أن تكون أكبر من صفر');
+      }
+
       const newTask = await supabaseTasksService.addTask(taskData);
-      console.log('Task created:', newTask);
+      console.log('Task created successfully:', newTask);
       
       setTasks(prev => {
         const updated = [...prev, newTask];
@@ -111,15 +126,16 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
       });
       
       toast({
-        title: "✅ Success",
-        description: `Task "${newTask.title}" added successfully`,
+        title: "✅ نجح",
+        description: `تم إضافة المهمة "${newTask.title}" بنجاح`,
         className: "bg-gradient-to-r from-green-500/90 to-emerald-500/90 border-green-400/50 text-white backdrop-blur-xl",
       });
     } catch (error) {
       console.error('Error adding task:', error);
+      const errorMessage = error instanceof Error ? error.message : 'فشل في إضافة المهمة';
       toast({
-        title: "Error",
-        description: "Failed to add task",
+        title: "خطأ",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;
@@ -140,15 +156,15 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
       });
       
       toast({
-        title: "✅ Success",
-        description: `Task "${updatedTask.title}" updated successfully`,
+        title: "✅ نجح",
+        description: `تم تحديث المهمة "${updatedTask.title}" بنجاح`,
         className: "bg-gradient-to-r from-blue-500/90 to-indigo-500/90 border-blue-400/50 text-white backdrop-blur-xl",
       });
     } catch (error) {
       console.error('Error updating task:', error);
       toast({
-        title: "Error",
-        description: "Failed to update task",
+        title: "خطأ",
+        description: "فشل في تحديث المهمة",
         variant: "destructive",
       });
       throw error;
@@ -173,15 +189,15 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
       setCompletedTaskIds(prev => prev.filter(taskId => taskId !== id));
       
       toast({
-        title: "🗑️ Success",
-        description: `Task "${taskToDelete?.title || 'Unknown'}" deleted successfully`,
+        title: "🗑️ نجح",
+        description: `تم حذف المهمة "${taskToDelete?.title || 'غير معروف'}" بنجاح`,
         className: "bg-gradient-to-r from-red-500/90 to-pink-500/90 border-red-400/50 text-white backdrop-blur-xl",
       });
     } catch (error) {
       console.error('Error deleting task:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete task",
+        title: "خطأ",
+        description: "فشل في حذف المهمة",
         variant: "destructive",
       });
       throw error;
@@ -191,8 +207,8 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
   const completeTask = async (id: string) => {
     if (!userId) {
       toast({
-        title: "Error",
-        description: "Please connect your wallet to complete tasks",
+        title: "خطأ",
+        description: "يرجى ربط محفظتك لإكمال المهام",
         variant: "destructive",
       });
       return;
@@ -213,8 +229,8 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
     } catch (error) {
       console.error('Error toggling task completion:', error);
       toast({
-        title: "Error",
-        description: "Failed to update task status",
+        title: "خطأ",
+        description: "فشل في تحديث حالة المهمة",
         variant: "destructive",
       });
       throw error;
@@ -222,9 +238,7 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
   };
 
   useEffect(() => {
-    if (userId !== null) {
-      refreshTasks();
-    }
+    refreshTasks();
   }, [userId]);
 
   const value: SupabaseTasksContextType = {

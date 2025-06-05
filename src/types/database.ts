@@ -40,7 +40,7 @@ export interface TaskUpdate {
 
 export interface UserTask {
   id: string;
-  user_id: string;
+  user_id: string; // Changed from uuid to string to support wallet addresses
   task_id: string;
   completed_at: string;
 }
