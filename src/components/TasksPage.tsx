@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw, Gift, Trophy } from 'lucide-react';
+import { CheckCircle, Star, Calendar, Users, TrendingUp, RefreshCw, Gift, Trophy, Wallet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSupabaseTasks } from '@/contexts/SupabaseTasksContext';
 import { useMining } from '@/contexts/MiningContext';
 
 const TasksPage = () => {
   const { toast } = useToast();
-  const { tasks, completedTaskIds, isLoading, refreshTasks, completeTask } = useSupabaseTasks();
+  const { tasks, completedTaskIds, isLoading, refreshTasks, completeTask, userId } = useSupabaseTasks();
   const { addTaskReward } = useMining();
   const [titleClickCount, setTitleClickCount] = useState(0);
 
@@ -69,10 +69,43 @@ const TasksPage = () => {
   const completedTasksCount = completedTaskIds.length;
   const totalEarned = (completedTasksCount * 0.05).toFixed(2);
 
+  if (!userId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-black via-gray-900 to-black">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg mx-auto">
+            <Wallet className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+            Connect Your Wallet
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Please connect your TON wallet to access daily tasks and start earning rewards
+          </p>
+          <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 backdrop-blur-xl border border-gray-500/30 rounded-xl p-6">
+            <p className="text-gray-300 text-sm">
+              Once connected, you'll be able to:
+            </p>
+            <ul className="text-gray-300 text-sm mt-2 space-y-1">
+              <li>• Complete daily tasks</li>
+              <li>• Earn TON rewards</li>
+              <li>• Track your progress</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-3 space-y-4 relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="max-w-md mx-auto space-y-4">
-        {/* Header with improved design */}
+    <div className="min-h-screen flex flex-col items-center justify-center p-3 space-y-4 relative bg-gradient-to-br from-black via-gray-900 to-black">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+      </div>
+
+      <div className="max-w-md mx-auto space-y-4 relative z-10">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center mb-3">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
@@ -88,7 +121,6 @@ const TasksPage = () => {
           <p className="text-gray-400 text-sm mt-2">Complete tasks and earn TON rewards</p>
         </div>
 
-        {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl border border-emerald-500/30 rounded-xl p-4 text-center">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/5 to-green-400/5 rounded-xl"></div>
@@ -113,7 +145,6 @@ const TasksPage = () => {
           </div>
         </div>
 
-        {/* Enhanced Tasks List */}
         <div className="space-y-3">
           {isLoading ? (
             <div className="text-center text-gray-400 py-8">

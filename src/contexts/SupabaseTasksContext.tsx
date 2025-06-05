@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabaseTasksService } from '@/services/supabaseTasksService';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useTonConnectUI } from '@tonconnect/ui-react';
 import type { Task, TaskInsert, TaskUpdate } from '@/types/database';
 
 interface SupabaseTasksContextType {
@@ -37,22 +38,37 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
+  const [tonConnectUI] = useTonConnectUI();
 
-  // Get current user
+  // Get user ID from wallet address
   useEffect(() => {
-    const getCurrentUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUserId(user?.id || null);
+    const getWalletUserId = () => {
+      const wallet = tonConnectUI.wallet;
+      if (wallet?.account?.address) {
+        setUserId(wallet.account.address);
+        console.log('User ID set from wallet:', wallet.account.address);
+      } else {
+        setUserId(null);
+        console.log('No wallet connected');
+      }
     };
 
-    getCurrentUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUserId(session?.user?.id || null);
+    getWalletUserId();
+    
+    const unsubscribe = tonConnectUI.onStatusChange(wallet => {
+      if (wallet?.account?.address) {
+        setUserId(wallet.account.address);
+        console.log('User ID updated from wallet:', wallet.account.address);
+      } else {
+        setUserId(null);
+        console.log('Wallet disconnected');
+      }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      unsubscribe();
+    };
+  }, [tonConnectUI]);
 
   const refreshTasks = async () => {
     try {
@@ -154,7 +170,6 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
         return updated;
       });
       
-      // Remove task from completed list
       setCompletedTaskIds(prev => prev.filter(taskId => taskId !== id));
       
       toast({
@@ -177,7 +192,7 @@ export const SupabaseTasksProvider: React.FC<SupabaseTasksProviderProps> = ({ ch
     if (!userId) {
       toast({
         title: "Error",
-        description: "Please log in to complete tasks",
+        description: "Please connect your wallet to complete tasks",
         variant: "destructive",
       });
       return;
