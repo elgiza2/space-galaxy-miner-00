@@ -12,6 +12,7 @@ import TasksPage from './components/TasksPage';
 import ReferralPage from './components/ReferralPage';
 import TaskManagementPage from './components/TaskManagementPage';
 import WalletConnectPage from './components/WalletConnectPage';
+import PromoBanner from './components/PromoBanner';
 import { Button } from '@/components/ui/button';
 import { Home, CheckSquare, Users } from 'lucide-react';
 
@@ -82,13 +83,19 @@ const MainApp = () => {
   };
 
   if (!isWalletConnected) {
-    return <WalletConnectPage />;
+    return (
+      <>
+        <PromoBanner />
+        <WalletConnectPage />
+      </>
+    );
   }
 
   return (
     <SupabaseTasksProvider>
       <MiningProvider>
         <div className="min-h-screen flex flex-col">
+          <PromoBanner />
           <div className="flex-1 pb-20">
             {renderCurrentPage()}
           </div>
